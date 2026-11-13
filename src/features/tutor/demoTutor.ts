@@ -68,7 +68,7 @@ export function matchLesson(
         [
           lesson.title,
           lesson.summary,
-          ...lesson.steps.flatMap((s) => (s.type === 'theory' ? [s.title, ...s.paragraphs] : [])),
+          ...lesson.theory.flatMap((page) => [page.title, ...page.paragraphs]),
         ].join(' '),
       );
       const score = words.filter((w) => text.includes(` ${w}`)).length;

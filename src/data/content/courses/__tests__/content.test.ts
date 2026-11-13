@@ -1,12 +1,13 @@
 import { courseLessons, courseQuizzes } from '@/features/courses/catalog';
-import type { LessonStep, QuizQuestion } from '@/features/courses/types';
+import { LESSON_QUESTION_COUNT, type ExerciseStep } from '@/features/courses/types';
 import { evaluateExercise } from '@/features/lessons/evaluate';
+import { quizPool } from '@/features/lessons/session';
 
 import { demoCourses } from '..';
 
-const allSteps = (): (LessonStep | QuizQuestion)[] =>
+const allQuestions = (): ExerciseStep[] =>
   demoCourses.flatMap((course) => [
-    ...courseLessons(course).flatMap((lesson) => lesson.steps),
+    ...courseLessons(course).flatMap((lesson) => lesson.questions),
     ...courseQuizzes(course).flatMap((quiz) => quiz.questions),
   ]);
 
@@ -27,30 +28,40 @@ describe('contenuti dimostrativi', () => {
       ...demoCourses.flatMap((course) => course.modules.map((m) => m.id)),
       ...demoCourses.flatMap((course) => courseLessons(course).map((l) => l.id)),
       ...demoCourses.flatMap((course) => courseQuizzes(course).map((q) => q.id)),
-      ...allSteps().map((s) => s.id),
+      ...demoCourses.flatMap((course) =>
+        courseLessons(course).flatMap((l) => l.theory.map((t) => t.id)),
+      ),
+      ...allQuestions().map((s) => s.id),
     ];
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it.each(demoCourses.map((c) => [c.id, c] as const))(
-    '%s: struttura completa (moduli, lezioni, quiz, test finale)',
+    '%s: teoria approfondita e banche domande sufficienti',
     (_id, course) => {
       expect(course.modules.length).toBeGreaterThanOrEqual(3);
-      expect(course.outcomes.length).toBeGreaterThanOrEqual(3);
       for (const module of course.modules) {
         expect(module.lessons.length).toBeGreaterThanOrEqual(2);
-        expect(module.quiz.questions.length).toBeGreaterThanOrEqual(3);
+        expect(quizPool(course, module.quiz).length).toBeGreaterThanOrEqual(module.quiz.drawCount);
         for (const lesson of module.lessons) {
-          expect(lesson.steps.some((s) => s.type === 'theory')).toBe(true);
-          expect(lesson.steps.some((s) => s.type !== 'theory')).toBe(true);
+          // Teoria: almeno 4 pagine, ognuna con contenuto sostanzioso.
+          expect(lesson.theory.length).toBeGreaterThanOrEqual(4);
+          for (const page of lesson.theory) {
+            const words = page.paragraphs.join(' ').split(/\s+/).length;
+            expect(words).toBeGreaterThanOrEqual(25);
+          }
+          // Domande: più di quelle estratte, così ogni tentativo è diverso.
+          expect(lesson.questions.length).toBeGreaterThan(LESSON_QUESTION_COUNT);
         }
       }
-      expect(course.finalTest.questions.length).toBeGreaterThanOrEqual(6);
+      expect(quizPool(course, course.finalTest).length).toBeGreaterThanOrEqual(
+        course.finalTest.drawCount,
+      );
     },
   );
 
-  it('ogni esercizio ha una risposta corretta valida', () => {
-    for (const step of allSteps()) {
+  it('ogni esercizio ha una risposta corretta valida e una spiegazione', () => {
+    for (const step of allQuestions()) {
       switch (step.type) {
         case 'multipleChoice':
         case 'fillBlank':
@@ -58,17 +69,16 @@ describe('contenuti dimostrativi', () => {
           expect(step.correctIndex).toBeGreaterThanOrEqual(0);
           expect(step.correctIndex).toBeLessThan(step.options.length);
           expect(new Set(step.options).size).toBe(step.options.length);
+          if (step.type === 'fillBlank') expect(step.sentence).toContain('___');
           break;
         case 'order':
           expect(step.items.length).toBeGreaterThanOrEqual(3);
           expect(new Set(step.items).size).toBe(step.items.length);
           break;
         case 'promptFix':
-          // La risposta d'esempio deve superare i criteri del proprio esercizio.
           expect(
             evaluateExercise(step, { type: 'promptFix', text: step.sampleAnswer }).correct,
           ).toBe(true);
-          // Il prompt debole di partenza invece non deve superarli.
           expect(evaluateExercise(step, { type: 'promptFix', text: step.weakPrompt }).correct).toBe(
             false,
           );
@@ -76,7 +86,6 @@ describe('contenuti dimostrativi', () => {
         default:
           break;
       }
-      if (step.type === 'fillBlank') expect(step.sentence).toContain('___');
       if ('explanation' in step) expect(step.explanation.length).toBeGreaterThan(0);
     }
   });

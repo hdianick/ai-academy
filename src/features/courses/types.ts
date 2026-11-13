@@ -82,20 +82,31 @@ export interface Quiz {
   id: string;
   title: string;
   kind: 'module' | 'final';
+  /** Domande proprie del quiz: si aggiungono alla banca domande delle lezioni collegate. */
   questions: QuizQuestion[];
+  /** Quante domande vengono estratte a caso a ogni tentativo. */
+  drawCount: number;
   /** Percentuale minima (0-1) per superarlo. */
   passingScore: number;
   xp: number;
 }
 
+/**
+ * Lezione: prima tutta la teoria (pagine rileggibili), poi una sessione di domande
+ * estratte a caso dalla banca `questions`, con resoconto finale.
+ */
 export interface Lesson {
   id: string;
   title: string;
   summary: string;
   estimatedMinutes: number;
   xp: number;
-  steps: LessonStep[];
+  theory: TheoryStep[];
+  questions: ExerciseStep[];
 }
+
+/** Quante domande per sessione di lezione. */
+export const LESSON_QUESTION_COUNT = 5;
 
 export interface CourseModule {
   id: string;

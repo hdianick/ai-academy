@@ -6,24 +6,40 @@ import { useTranslation } from 'react-i18next';
 
 import { colors, radius, spacing } from '@/core/theme';
 import { coursesRepository } from '@/data/repositories/courses';
+import type { ExerciseStep } from '@/features/courses/types';
 import { RewardSummary } from '@/features/gamification/components/RewardSummary';
 import type { Reward } from '@/features/gamification/rewards';
-import { ActivityPlayer } from '@/features/lessons/components/ActivityPlayer';
-import { ResultView } from '@/features/lessons/components/ResultView';
-import { scoreQuiz } from '@/features/lessons/evaluate';
+import { initialAnswer } from '@/features/lessons/answers';
+import { QuestionSession } from '@/features/lessons/components/QuestionSession';
+import { SessionReportView } from '@/features/lessons/components/SessionReportView';
+import type { ExerciseAnswer } from '@/features/lessons/evaluate';
+import {
+  buildReport,
+  drawQuestions,
+  newSeed,
+  quizPool,
+  type SessionReport,
+} from '@/features/lessons/session';
 import { useProgressStore } from '@/features/progress/store';
 import { AppText, Button, Card, EmptyState, IconButton, Screen } from '@/ui';
 
-type Phase =
-  | { kind: 'intro' }
-  | { kind: 'playing'; attempt: number }
-  | { kind: 'result'; score: number; passed: boolean; reward: Reward; attempt: number };
-
 export default function QuizScreen() {
-  const { t } = useTranslation();
   const { quizId } = useLocalSearchParams<{ quizId: string }>();
+  return <QuizFlow key={quizId ?? 'none'} quizId={quizId} />;
+}
+
+function QuizFlow({ quizId }: { quizId: string | undefined }) {
+  const { t } = useTranslation();
   const recordQuiz = useProgressStore((state) => state.recordQuiz);
-  const [phase, setPhase] = useState<Phase>({ kind: 'intro' });
+  const [phase, setPhase] = useState<'intro' | 'questions' | 'report'>('intro');
+  const [questions, setQuestions] = useState<ExerciseStep[]>([]);
+  const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState<(ExerciseAnswer | null)[]>([]);
+  const [result, setResult] = useState<{
+    report: SessionReport;
+    passed: boolean;
+    reward: Reward;
+  } | null>(null);
 
   const found = quizId ? coursesRepository.findQuiz(quizId) : null;
 
@@ -43,58 +59,79 @@ export default function QuizScreen() {
   const { course, quiz } = found;
   const isFinal = quiz.kind === 'final';
   const passingPercent = Math.round(quiz.passingScore * 100);
+  const pool = quizPool(course, quiz);
+  const questionCount = Math.min(quiz.drawCount, pool.length);
   const backToCourse = () =>
     router.replace({ pathname: '/course/[courseId]', params: { courseId: course.id } });
 
-  if (phase.kind === 'playing') {
+  const start = () => {
+    const drawn = drawQuestions(pool, questionCount, newSeed(), 0);
+    setQuestions(drawn);
+    setAnswers(drawn.map((q) => initialAnswer(q)));
+    setIndex(0);
+    setResult(null);
+    setPhase('questions');
+  };
+
+  if (phase === 'questions') {
     return (
-      <ActivityPlayer
-        key={`${quiz.id}-${phase.attempt}`}
-        steps={quiz.questions}
+      <QuestionSession
+        questions={questions}
+        index={index}
+        answers={answers}
+        onIndexChange={setIndex}
+        onAnswer={(i, answer) =>
+          setAnswers((current) => current.map((a, idx) => (idx === i ? answer : a)))
+        }
         onClose={backToCourse}
-        onComplete={(results) => {
-          const score = scoreQuiz(results);
-          const passed = score >= quiz.passingScore;
+        onFinish={() => {
+          const report = buildReport(questions, answers);
+          const passed = report.score >= quiz.passingScore;
           const reward = recordQuiz({
             courseId: course.id,
             quizId: quiz.id,
-            score,
+            score: report.score,
             passed,
             xp: quiz.xp,
           });
-          setPhase({ kind: 'result', score, passed, reward, attempt: phase.attempt });
+          setResult({ report, passed, reward });
+          setPhase('report');
         }}
       />
     );
   }
 
-  if (phase.kind === 'result') {
-    const percent = Math.round(phase.score * 100);
-    const retry = () => setPhase({ kind: 'playing', attempt: phase.attempt + 1 });
-    return phase.passed ? (
-      <ResultView
-        icon={isFinal ? 'trophy' : 'ribbon'}
-        tone="success"
-        title={isFinal ? t('quiz.finalPassedTitle') : t('quiz.passedTitle')}
-        highlight={phase.reward.xp > 0 ? t('player.xpEarned', { xp: phase.reward.xp }) : undefined}
-        lines={[t('quiz.score', { percent })]}
-        primary={{ label: t('player.backToCourse'), onPress: backToCourse, testID: 'result-next' }}
-        secondary={{ label: t('quiz.retry'), onPress: retry }}
-      >
-        <RewardSummary reward={phase.reward} />
-      </ResultView>
-    ) : (
-      <ResultView
-        icon="refresh"
-        tone="warning"
-        title={t('quiz.failedTitle')}
-        lines={[
-          t('quiz.score', { percent }),
-          t('quiz.passingScore', { percent: passingPercent }),
-          t('quiz.failedDescription'),
+  if (phase === 'report' && result) {
+    return (
+      <SessionReportView
+        report={result.report}
+        icon={result.passed ? (isFinal ? 'trophy' : 'ribbon') : 'refresh'}
+        title={
+          result.passed
+            ? isFinal
+              ? t('quiz.finalPassedTitle')
+              : t('quiz.passedTitle')
+            : t('quiz.failedTitle')
+        }
+        highlight={
+          result.reward.xp > 0 ? t('player.xpEarned', { xp: result.reward.xp }) : undefined
+        }
+        extraLines={
+          result.passed
+            ? []
+            : [t('quiz.passingScore', { percent: passingPercent }), t('quiz.failedDescription')]
+        }
+        rewards={<RewardSummary reward={result.reward} />}
+        primary={
+          result.passed
+            ? { label: t('player.backToCourse'), onPress: backToCourse, testID: 'result-next' }
+            : { label: t('lesson.retryNew'), onPress: start, testID: 'result-retry' }
+        }
+        secondary={[
+          result.passed
+            ? { label: t('lesson.retryNew'), onPress: start, testID: 'result-retry' }
+            : { label: t('player.backToCourse'), onPress: backToCourse, testID: 'result-next' },
         ]}
-        primary={{ label: t('quiz.retry'), onPress: retry, testID: 'result-retry' }}
-        secondary={{ label: t('player.backToCourse'), onPress: backToCourse }}
       />
     );
   }
@@ -122,16 +159,14 @@ export default function QuizScreen() {
       </View>
       <Card variant="elevated">
         <AppText variant="bodyStrong">
-          {t('course.questions', { count: quiz.questions.length })} · {quiz.xp} XP
+          {t('course.questions', { count: questionCount })} · {quiz.xp} XP
         </AppText>
         <AppText color="secondary">{t('quiz.passingScore', { percent: passingPercent })}</AppText>
+        <AppText variant="caption" color="muted">
+          {t('lesson.questionsIntro')}
+        </AppText>
       </Card>
-      <Button
-        label={t('quiz.start')}
-        fullWidth
-        testID="quiz-start"
-        onPress={() => setPhase({ kind: 'playing', attempt: 1 })}
-      />
+      <Button label={t('quiz.start')} fullWidth testID="quiz-start" onPress={start} />
     </Screen>
   );
 }

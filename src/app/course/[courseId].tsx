@@ -158,7 +158,7 @@ export default function CourseScreen() {
                   key={lesson.id}
                   icon="book-outline"
                   title={lesson.title}
-                  subtitle={`${t('course.minutes', { count: lesson.estimatedMinutes })} · ${lesson.xp} XP`}
+                  subtitle={`${t('course.minutes', { count: lesson.estimatedMinutes })} · ${t('lesson.theoryPages', { count: lesson.theory.length })} · ${lesson.xp} XP`}
                   status={statusFor('lesson', lesson.id)}
                   onPress={() => openActivity('lesson', lesson.id)}
                   testID={`lesson-row-${lesson.id}`}

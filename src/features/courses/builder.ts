@@ -4,6 +4,7 @@
  */
 import type {
   Course,
+  ExerciseStep,
   FillBlankStep,
   LessonStep,
   MultipleChoiceStep,
@@ -67,12 +68,15 @@ export const promptFix = (input: Omit<PromptFixStep, 'id' | 'type'>): WithoutId<
   ...input,
 });
 
+export type DraftExercise = WithoutId<ExerciseStep>;
+
 interface DraftLesson {
   title: string;
   summary: string;
   estimatedMinutes: number;
   xp?: number;
-  steps: DraftStep[];
+  theory: WithoutId<TheoryStep>[];
+  questions: DraftExercise[];
 }
 
 interface DraftModule {
@@ -90,9 +94,15 @@ interface DraftCourse extends Omit<Course, 'modules' | 'finalTest'> {
 const LESSON_XP = 20;
 const MODULE_QUIZ_XP = 30;
 const FINAL_TEST_XP = 60;
+const MODULE_QUIZ_QUESTIONS = 5;
+const FINAL_TEST_QUESTIONS = 10;
 
-export function withIds<T extends object>(items: T[], prefix: string): (T & { id: string })[] {
-  return items.map((item, index) => ({ ...item, id: `${prefix}.s${index + 1}` }));
+export function withIds<T extends object>(
+  items: T[],
+  prefix: string,
+  tag = 's',
+): (T & { id: string })[] {
+  return items.map((item, index) => ({ ...item, id: `${prefix}.${tag}${index + 1}` }));
 }
 
 export function defineCourse(draft: DraftCourse): Course {
@@ -113,13 +123,15 @@ export function defineCourse(draft: DraftCourse): Course {
             summary: lesson.summary,
             estimatedMinutes: lesson.estimatedMinutes,
             xp: lesson.xp ?? LESSON_XP,
-            steps: withIds(lesson.steps, lessonId) as LessonStep[],
+            theory: withIds(lesson.theory, lessonId, 't') as TheoryStep[],
+            questions: withIds(lesson.questions, lessonId, 'q') as ExerciseStep[],
           };
         }),
         quiz: {
           id: `${moduleId}.quiz`,
           title: `Quiz · ${module.title}`,
           kind: 'module',
+          drawCount: MODULE_QUIZ_QUESTIONS,
           passingScore: 0.6,
           xp: MODULE_QUIZ_XP,
           questions: withIds(module.quiz, `${moduleId}.quiz`) as QuizQuestion[],
@@ -130,6 +142,7 @@ export function defineCourse(draft: DraftCourse): Course {
       id: `${courseId}.final`,
       title: `Test finale · ${draft.title}`,
       kind: 'final',
+      drawCount: FINAL_TEST_QUESTIONS,
       passingScore: 0.7,
       xp: FINAL_TEST_XP,
       questions: withIds(draft.finalTest, `${courseId}.final`) as QuizQuestion[],
