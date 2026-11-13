@@ -5,14 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { colors, layout, radius, spacing, typography } from '@/core/theme';
 import type { FillBlankStep, OrderStep, PromptFixStep, TheoryStep } from '@/features/courses/types';
-import { shuffleDifferent, type PromptCheckResult } from '@/features/lessons/evaluate';
+import { hashSeed, shuffleDifferent, type PromptCheckResult } from '@/features/lessons/evaluate';
 import { AppText } from '@/ui';
-
-export function hashSeed(text: string): number {
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
-  return Math.abs(hash) + 1;
-}
 
 /* ---------- Teoria ---------- */
 

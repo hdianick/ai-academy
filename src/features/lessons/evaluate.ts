@@ -66,6 +66,13 @@ export function evaluateExercise(step: ExerciseStep, answer: ExerciseAnswer): Ev
   }
 }
 
+/** Hash numerico stabile di una stringa (seed per mescolamenti riproducibili). */
+export function hashSeed(text: string): number {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  return Math.abs(hash) + 1;
+}
+
 /** Mescola un array in modo deterministico dato un seed (per test riproducibili). */
 export function shuffle<T>(items: readonly T[], seed: number = Date.now()): T[] {
   const result = [...items];

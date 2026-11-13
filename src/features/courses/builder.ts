@@ -15,8 +15,8 @@ import type {
 } from './types';
 
 type WithoutId<T> = T extends unknown ? Omit<T, 'id'> : never;
-type DraftStep = WithoutId<LessonStep>;
-type DraftQuestion = WithoutId<QuizQuestion>;
+export type DraftStep = WithoutId<LessonStep>;
+export type DraftQuestion = WithoutId<QuizQuestion>;
 
 export const theory = (
   title: string,
@@ -91,7 +91,7 @@ const LESSON_XP = 20;
 const MODULE_QUIZ_XP = 30;
 const FINAL_TEST_XP = 60;
 
-function withIds<T extends object>(items: T[], prefix: string): (T & { id: string })[] {
+export function withIds<T extends object>(items: T[], prefix: string): (T & { id: string })[] {
   return items.map((item, index) => ({ ...item, id: `${prefix}.s${index + 1}` }));
 }
 

@@ -15,6 +15,7 @@ import {
 } from '@/features/courses/types';
 import { getCourseProgress } from '@/features/progress/progress';
 import { useProgressStore } from '@/features/progress/store';
+import { ToolsTeaser } from '@/features/tools/components/ToolsTeaser';
 import { AppText, Chip, EmptyState, Screen, ScreenHeader, SearchField } from '@/ui';
 
 function FilterRow({ label, children }: { label: string; children: React.ReactNode }) {
@@ -58,6 +59,8 @@ export default function AcademyScreen() {
   return (
     <Screen testID="screen-academy">
       <ScreenHeader title={t('academy.title')} subtitle={t('academy.subtitle')} />
+
+      <ToolsTeaser />
 
       <SearchField
         value={query}

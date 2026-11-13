@@ -9,6 +9,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { coursesRepository } from '@/data/repositories/courses';
 import { applyActivity, type Reward } from '@/features/gamification/rewards';
 import { toDateKey } from '@/features/gamification/streak';
+import { dailyChallengeXp } from '@/features/practice/challenges';
 
 import { emptyProgress, quizXpAward, type ProgressState } from './progress';
 
@@ -21,6 +22,9 @@ interface ProgressActions {
     passed: boolean;
     xp: number;
   }) => Reward;
+  completePractice: (input: { practiceId: string; score: number; xp: number }) => Reward;
+  completeDailyChallenge: (input: { dateKey: string; correct: number; total: number }) => Reward;
+  claimWeekly: (input: { claimKey: string; xp: number }) => Reward | null;
   setDailyGoal: (xp: number) => void;
   reset: () => void;
 }
@@ -95,6 +99,50 @@ export const useProgressStore = create<ProgressStore>()(
           );
         },
 
+        completePractice: ({ practiceId, score, xp }) => {
+          const previous = get().practice[practiceId];
+          return commit(
+            (state, nowIso) => ({
+              ...state,
+              practice: {
+                ...state.practice,
+                [practiceId]: {
+                  completedAt: previous?.completedAt ?? nowIso,
+                  bestScore: Math.max(previous?.bestScore ?? 0, score),
+                },
+              },
+            }),
+            previous ? 0 : xp,
+          );
+        },
+
+        completeDailyChallenge: ({ dateKey, correct, total }) => {
+          const alreadyDone = Boolean(get().dailyChallenges[dateKey]);
+          return commit(
+            (state, nowIso) => ({
+              ...state,
+              dailyChallenges: alreadyDone
+                ? state.dailyChallenges
+                : {
+                    ...state.dailyChallenges,
+                    [dateKey]: { score: total ? correct / total : 0, completedAt: nowIso },
+                  },
+            }),
+            dailyChallengeXp(correct, alreadyDone),
+          );
+        },
+
+        claimWeekly: ({ claimKey, xp }) => {
+          if (get().weeklyClaims[claimKey]) return null;
+          return commit(
+            (state, nowIso) => ({
+              ...state,
+              weeklyClaims: { ...state.weeklyClaims, [claimKey]: nowIso },
+            }),
+            xp,
+          );
+        },
+
         setDailyGoal: (dailyGoal) => set({ dailyGoal }),
 
         reset: () => set({ ...emptyProgress }),
@@ -102,10 +150,10 @@ export const useProgressStore = create<ProgressStore>()(
     },
     {
       name: 'ai-academy/progress',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (store) => pickState(store),
-      // v1 → v2: aggiunti i campi della gamification (valori predefiniti per i dati mancanti).
+      // v1 → v2: gamification; v2 → v3: Practice Lab e sfide. I campi mancanti prendono i valori predefiniti.
       migrate: (persisted) => ({ ...emptyProgress, ...(persisted as Partial<ProgressState>) }),
       merge: (persisted, current) => ({
         ...current,

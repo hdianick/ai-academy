@@ -18,6 +18,7 @@ import {
 } from '@/features/gamification/components/GamificationCards';
 import { useGamification } from '@/features/gamification/hooks';
 import { useProgressStore } from '@/features/progress/store';
+import { ToolsTeaser } from '@/features/tools/components/ToolsTeaser';
 import { AppText, Button, Card, DemoBanner, ProgressBar, Screen } from '@/ui';
 
 function openCourse(courseId: string) {
@@ -125,6 +126,8 @@ export default function HomeScreen() {
       />
 
       <LevelCard xp={game.xp} />
+
+      <ToolsTeaser />
 
       <View style={styles.sectionHeader}>
         <AppText variant="heading">{t('home.recommendedTitle')}</AppText>

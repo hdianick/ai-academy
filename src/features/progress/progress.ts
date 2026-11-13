@@ -32,6 +32,12 @@ export interface ProgressState {
   badges: Record<string, string>;
   /** Quiz completati con il 100%. */
   perfectQuizzes: Record<string, true>;
+  /** Attività del Practice Lab completate. */
+  practice: Record<string, { completedAt: string; bestScore: number }>;
+  /** Sfide giornaliere completate: giorno → punteggio. */
+  dailyChallenges: Record<string, { score: number; completedAt: string }>;
+  /** Bonus delle sfide settimanali riscattati: "<sfida>:<settimana>" → data. */
+  weeklyClaims: Record<string, string>;
 }
 
 export const emptyProgress: ProgressState = {
@@ -45,6 +51,9 @@ export const emptyProgress: ProgressState = {
   goalMetDays: {},
   badges: {},
   perfectQuizzes: {},
+  practice: {},
+  dailyChallenges: {},
+  weeklyClaims: {},
 };
 
 export interface CourseProgress {
