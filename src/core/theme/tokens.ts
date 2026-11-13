@@ -54,8 +54,10 @@ export const colors = {
   streak: palette.orange500,
   success: palette.green400,
   successSoft: 'rgba(74, 222, 128, 0.14)',
+  successSurface: '#0E2A1C',
   danger: palette.red400,
   dangerSoft: 'rgba(248, 113, 113, 0.14)',
+  dangerSurface: '#2E1418',
   warning: palette.amber400,
   warningSoft: 'rgba(251, 191, 36, 0.14)',
 
