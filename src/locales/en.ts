@@ -191,6 +191,27 @@ export const en: TranslationShape = {
   tutor: {
     title: 'AI Tutor',
     subtitle: 'Ask questions about concepts and lessons.',
+    demoBadge: 'Demo mode',
+    demoNotice:
+      'In this version the tutor uses prepared answers based on the course content and the tool catalog: it is not connected to an AI model and does not store conversations.',
+    welcome:
+      'Hi! Ask me about a course concept or an AI tool: I’ll explain briefly and point you to the lesson to learn more.',
+    suggestionsTitle: 'Try asking',
+    suggestion1: 'Come scrivo un buon prompt?',
+    suggestion2: 'Cos’è un’allucinazione?',
+    suggestion3: 'Cos’è un agente AI?',
+    suggestion4: 'A cosa serve n8n?',
+    suggestion5: 'Che proporzioni uso per i social?',
+    placeholder: 'Write a question…',
+    inputLabel: 'Question for the tutor',
+    send: 'Send',
+    clear: 'New conversation',
+    openLesson: 'Lesson: {{title}}',
+    openTool: 'Tool: {{title}}',
+    you: 'You',
+    tutorName: 'Tutor',
+    askAboutStep: 'Ask the tutor',
+    fallbackHint: 'Answer not available in demo',
   },
   profile: {
     title: 'Profile',

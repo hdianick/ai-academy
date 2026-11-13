@@ -84,6 +84,7 @@ export default function LessonScreen() {
     <ActivityPlayer
       key={lesson.id}
       steps={lesson.steps}
+      onAskTutor={(q) => router.push({ pathname: '/tutor/ask', params: { q } })}
       onClose={backToCourse}
       onComplete={(results) => {
         const reward = completeLesson({ courseId: course.id, lessonId: lesson.id, xp: lesson.xp });

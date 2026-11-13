@@ -72,6 +72,7 @@ export default function PracticeActivityScreen() {
     <ActivityPlayer
       key={`${item.id}-${attempt}`}
       steps={item.steps}
+      onAskTutor={(q) => router.push({ pathname: '/tutor/ask', params: { q } })}
       onClose={backToPractice}
       onComplete={(results) => {
         const reward = completePractice({

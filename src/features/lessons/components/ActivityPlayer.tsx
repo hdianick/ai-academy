@@ -67,9 +67,28 @@ export interface ActivityPlayerProps {
   onClose: () => void;
   /** Chiamato alla fine con l'esito di ogni esercizio (teoria esclusa). */
   onComplete: (results: boolean[]) => void;
+  /** Se presente, mostra il pulsante per chiedere chiarimenti al tutor sullo step corrente. */
+  onAskTutor?: (question: string) => void;
 }
 
-export function ActivityPlayer({ steps, onClose, onComplete }: ActivityPlayerProps) {
+/** Testo dello step da usare come domanda per il tutor. */
+export function stepTopic(step: LessonStep): string {
+  switch (step.type) {
+    case 'theory':
+      return step.title;
+    case 'multipleChoice':
+      return step.question;
+    case 'trueFalse':
+      return step.statement;
+    case 'fillBlank':
+      return step.sentence.replace('___', '…');
+    case 'order':
+    case 'promptFix':
+      return step.instruction;
+  }
+}
+
+export function ActivityPlayer({ steps, onClose, onComplete, onAskTutor }: ActivityPlayerProps) {
   const { t } = useTranslation();
   const scrollRef = useRef<ScrollViewInstance>(null);
   const [index, setIndex] = useState(0);
@@ -217,6 +236,14 @@ export function ActivityPlayer({ steps, onClose, onComplete }: ActivityPlayerPro
         <AppText variant="caption" color="muted">
           {t('player.stepOf', { current: index + 1, total: steps.length })}
         </AppText>
+        {onAskTutor ? (
+          <IconButton
+            icon="chatbubble-ellipses-outline"
+            onPress={() => onAskTutor(stepTopic(step))}
+            accessibilityLabel={t('tutor.askAboutStep')}
+            testID="ask-tutor"
+          />
+        ) : null}
       </View>
 
       <ScrollView

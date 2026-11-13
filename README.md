@@ -92,6 +92,22 @@ Regola: in `src/app/` solo route. Logica e componenti vivono in `src/features/` 
 | 7    | Supabase: autenticazione, schema, RLS, sincronizzazione                   | ⏳            |
 | 8    | Piani FREE/PREMIUM/PRO, ruoli admin, accessibilità, EAS, rifinitura       | ⏳            |
 
+## AI Tutor
+
+Oggi il Tutor funziona in **modalità demo** (dichiarata nell'interfaccia): risponde con spiegazioni
+preparate (`src/data/content/tutor-knowledge.ts`), riconosce gli strumenti del catalogo e rimanda alle
+lezioni. Non chiama modelli AI e non salva le conversazioni.
+
+Il codice usa l'interfaccia `TutorProvider` (`src/features/tutor/types.ts`), scelta in un solo punto
+(`src/features/tutor/store.ts`). Per collegare un modello reale:
+
+1. creare una **Supabase Edge Function** (es. `tutor`) che riceve la domanda dell'utente autenticato,
+   aggiunge il contesto della lezione e chiama il provider AI con la chiave conservata **solo lato server**;
+2. implementare un `RemoteTutorProvider` che chiama quella funzione con il token di sessione;
+3. abilitarlo solo per il piano PRO, con limiti di utilizzo per utente.
+
+Le chiavi dei provider AI non devono mai finire nell'app o in variabili `EXPO_PUBLIC_*`.
+
 ## Note sui marchi
 
 I nomi degli strumenti AI citati appartengono ai rispettivi proprietari. L'app non usa loghi ufficiali

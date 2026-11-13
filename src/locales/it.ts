@@ -194,6 +194,27 @@ export const it = {
   tutor: {
     title: 'AI Tutor',
     subtitle: 'Fai domande sui concetti e sulle lezioni.',
+    demoBadge: 'Modalità demo',
+    demoNotice:
+      'In questa versione il tutor usa risposte preparate sui contenuti dei corsi e sugli strumenti del catalogo: non è collegato a un modello AI e non conserva le conversazioni.',
+    welcome:
+      'Ciao! Chiedimi un concetto dei corsi o uno strumento AI: ti spiego in breve e ti indico la lezione per approfondire.',
+    suggestionsTitle: 'Prova a chiedere',
+    suggestion1: 'Come scrivo un buon prompt?',
+    suggestion2: 'Cos’è un’allucinazione?',
+    suggestion3: 'Cos’è un agente AI?',
+    suggestion4: 'A cosa serve n8n?',
+    suggestion5: 'Che proporzioni uso per i social?',
+    placeholder: 'Scrivi una domanda…',
+    inputLabel: 'Domanda per il tutor',
+    send: 'Invia',
+    clear: 'Nuova conversazione',
+    openLesson: 'Lezione: {{title}}',
+    openTool: 'Scheda: {{title}}',
+    you: 'Tu',
+    tutorName: 'Tutor',
+    askAboutStep: 'Chiedi al tutor',
+    fallbackHint: 'Risposta non disponibile in demo',
   },
   profile: {
     title: 'Profilo',

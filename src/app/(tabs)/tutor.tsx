@@ -1,15 +1,17 @@
-import { useTranslation } from 'react-i18next';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ComingSoonScreen } from '@/features/placeholders/ComingSoonScreen';
+import { colors } from '@/core/theme';
+import { TutorChat } from '@/features/tutor/components/TutorChat';
 
 export default function TutorScreen() {
-  const { t } = useTranslation();
   return (
-    <ComingSoonScreen
-      testID="screen-tutor"
-      icon="chatbubbles-outline"
-      title={t('tutor.title')}
-      subtitle={t('tutor.subtitle')}
-    />
+    <SafeAreaView style={styles.container} edges={['top']} testID="screen-tutor">
+      <TutorChat />
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+});
