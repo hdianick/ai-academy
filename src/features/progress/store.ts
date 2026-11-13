@@ -6,72 +6,110 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { coursesRepository } from '@/data/repositories/courses';
+import { applyActivity, type Reward } from '@/features/gamification/rewards';
+import { toDateKey } from '@/features/gamification/streak';
+
 import { emptyProgress, quizXpAward, type ProgressState } from './progress';
 
 interface ProgressActions {
-  completeLesson: (input: { courseId: string; lessonId: string; xp: number }) => number;
+  completeLesson: (input: { courseId: string; lessonId: string; xp: number }) => Reward;
   recordQuiz: (input: {
     courseId: string;
     quizId: string;
     score: number;
     passed: boolean;
     xp: number;
-  }) => number;
+  }) => Reward;
+  setDailyGoal: (xp: number) => void;
   reset: () => void;
 }
 
 export type ProgressStore = ProgressState & ProgressActions;
 
+const stateKeys = Object.keys(emptyProgress) as (keyof ProgressState)[];
+
+/** Estrae solo i dati (senza le azioni) dallo store. */
+export function pickState(store: ProgressState): ProgressState {
+  return Object.fromEntries(stateKeys.map((key) => [key, store[key]])) as unknown as ProgressState;
+}
+
 export const useProgressStore = create<ProgressStore>()(
   persist(
-    (set, get) => ({
-      ...emptyProgress,
+    (set, get) => {
+      /** Registra l'attività, applica le ricompense e restituisce il riepilogo. */
+      const commit = (
+        update: (state: ProgressState, nowIso: string) => ProgressState,
+        xp: number,
+      ): Reward => {
+        const now = new Date();
+        const nowIso = now.toISOString();
+        const before = pickState(get());
+        const { state, reward } = applyActivity({
+          before,
+          after: update(before, nowIso),
+          xp,
+          today: toDateKey(now),
+          nowIso,
+          courses: coursesRepository.list(),
+        });
+        set(state);
+        return reward;
+      };
 
-      /** Restituisce gli XP assegnati (0 se la lezione era già completata). */
-      completeLesson: ({ courseId, lessonId, xp }) => {
-        const now = new Date().toISOString();
-        const alreadyDone = Boolean(get().lessons[lessonId]);
-        const awarded = alreadyDone ? 0 : xp;
-        set((state) => ({
-          lessons: alreadyDone
-            ? state.lessons
-            : { ...state.lessons, [lessonId]: { completedAt: now } },
-          xp: state.xp + awarded,
-          lastActivity: { courseId, at: now },
-        }));
-        return awarded;
-      },
+      return {
+        ...emptyProgress,
 
-      recordQuiz: ({ courseId, quizId, score, passed, xp }) => {
-        const now = new Date().toISOString();
-        const previous = get().quizzes[quizId];
-        const awarded = quizXpAward(previous, passed, xp);
-        set((state) => ({
-          quizzes: {
-            ...state.quizzes,
-            [quizId]: {
-              bestScore: Math.max(previous?.bestScore ?? 0, score),
-              passed: Boolean(previous?.passed) || passed,
-              lastAttemptAt: now,
-            },
-          },
-          xp: state.xp + awarded,
-          lastActivity: { courseId, at: now },
-        }));
-        return awarded;
-      },
+        completeLesson: ({ courseId, lessonId, xp }) => {
+          const alreadyDone = Boolean(get().lessons[lessonId]);
+          return commit(
+            (state, nowIso) => ({
+              ...state,
+              lessons: alreadyDone
+                ? state.lessons
+                : { ...state.lessons, [lessonId]: { completedAt: nowIso } },
+              lastActivity: { courseId, at: nowIso },
+            }),
+            alreadyDone ? 0 : xp,
+          );
+        },
 
-      reset: () => set({ ...emptyProgress }),
-    }),
+        recordQuiz: ({ courseId, quizId, score, passed, xp }) => {
+          const previous = get().quizzes[quizId];
+          return commit(
+            (state, nowIso) => ({
+              ...state,
+              quizzes: {
+                ...state.quizzes,
+                [quizId]: {
+                  bestScore: Math.max(previous?.bestScore ?? 0, score),
+                  passed: Boolean(previous?.passed) || passed,
+                  lastAttemptAt: nowIso,
+                },
+              },
+              perfectQuizzes:
+                score >= 1 ? { ...state.perfectQuizzes, [quizId]: true } : state.perfectQuizzes,
+              lastActivity: { courseId, at: nowIso },
+            }),
+            quizXpAward(previous, passed, xp),
+          );
+        },
+
+        setDailyGoal: (dailyGoal) => set({ dailyGoal }),
+
+        reset: () => set({ ...emptyProgress }),
+      };
+    },
     {
       name: 'ai-academy/progress',
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ lessons, quizzes, xp, lastActivity }) => ({
-        lessons,
-        quizzes,
-        xp,
-        lastActivity,
+      partialize: (store) => pickState(store),
+      // v1 → v2: aggiunti i campi della gamification (valori predefiniti per i dati mancanti).
+      migrate: (persisted) => ({ ...emptyProgress, ...(persisted as Partial<ProgressState>) }),
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as Partial<ProgressState>),
       }),
     },
   ),

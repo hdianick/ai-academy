@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 import { colors, radius, spacing } from '@/core/theme';
 import { coursesRepository } from '@/data/repositories/courses';
+import { RewardSummary } from '@/features/gamification/components/RewardSummary';
+import type { Reward } from '@/features/gamification/rewards';
 import { ActivityPlayer } from '@/features/lessons/components/ActivityPlayer';
 import { ResultView } from '@/features/lessons/components/ResultView';
 import { scoreQuiz } from '@/features/lessons/evaluate';
@@ -15,7 +17,7 @@ import { AppText, Button, Card, EmptyState, IconButton, Screen } from '@/ui';
 type Phase =
   | { kind: 'intro' }
   | { kind: 'playing'; attempt: number }
-  | { kind: 'result'; score: number; passed: boolean; xp: number; attempt: number };
+  | { kind: 'result'; score: number; passed: boolean; reward: Reward; attempt: number };
 
 export default function QuizScreen() {
   const { t } = useTranslation();
@@ -53,14 +55,14 @@ export default function QuizScreen() {
         onComplete={(results) => {
           const score = scoreQuiz(results);
           const passed = score >= quiz.passingScore;
-          const xp = recordQuiz({
+          const reward = recordQuiz({
             courseId: course.id,
             quizId: quiz.id,
             score,
             passed,
             xp: quiz.xp,
           });
-          setPhase({ kind: 'result', score, passed, xp, attempt: phase.attempt });
+          setPhase({ kind: 'result', score, passed, reward, attempt: phase.attempt });
         }}
       />
     );
@@ -74,11 +76,13 @@ export default function QuizScreen() {
         icon={isFinal ? 'trophy' : 'ribbon'}
         tone="success"
         title={isFinal ? t('quiz.finalPassedTitle') : t('quiz.passedTitle')}
-        highlight={phase.xp > 0 ? t('player.xpEarned', { xp: phase.xp }) : undefined}
+        highlight={phase.reward.xp > 0 ? t('player.xpEarned', { xp: phase.reward.xp }) : undefined}
         lines={[t('quiz.score', { percent })]}
         primary={{ label: t('player.backToCourse'), onPress: backToCourse, testID: 'result-next' }}
         secondary={{ label: t('quiz.retry'), onPress: retry }}
-      />
+      >
+        <RewardSummary reward={phase.reward} />
+      </ResultView>
     ) : (
       <ResultView
         icon="refresh"

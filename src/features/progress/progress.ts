@@ -3,6 +3,8 @@
  */
 import { courseLessons, courseQuizzes } from '@/features/courses/catalog';
 import type { Course } from '@/features/courses/types';
+import { DEFAULT_DAILY_GOAL } from '@/features/gamification/badges';
+import { emptyStreak, type StreakState } from '@/features/gamification/streak';
 
 export interface LessonRecord {
   completedAt: string;
@@ -19,6 +21,17 @@ export interface ProgressState {
   quizzes: Record<string, QuizRecord>;
   xp: number;
   lastActivity: { courseId: string; at: string } | null;
+  /** XP guadagnati per giorno ("YYYY-MM-DD"). */
+  dailyXp: Record<string, number>;
+  streak: StreakState;
+  /** Obiettivo giornaliero in XP. */
+  dailyGoal: number;
+  /** Giorni in cui l'obiettivo è stato raggiunto. */
+  goalMetDays: Record<string, true>;
+  /** Badge ottenuti: id → data. */
+  badges: Record<string, string>;
+  /** Quiz completati con il 100%. */
+  perfectQuizzes: Record<string, true>;
 }
 
 export const emptyProgress: ProgressState = {
@@ -26,6 +39,12 @@ export const emptyProgress: ProgressState = {
   quizzes: {},
   xp: 0,
   lastActivity: null,
+  dailyXp: {},
+  streak: emptyStreak,
+  dailyGoal: DEFAULT_DAILY_GOAL,
+  goalMetDays: {},
+  badges: {},
+  perfectQuizzes: {},
 };
 
 export interface CourseProgress {

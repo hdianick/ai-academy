@@ -4,13 +4,15 @@ import { useTranslation } from 'react-i18next';
 
 import { coursesRepository } from '@/data/repositories/courses';
 import { nextActivityAfterLesson } from '@/features/courses/catalog';
+import { RewardSummary } from '@/features/gamification/components/RewardSummary';
+import type { Reward } from '@/features/gamification/rewards';
 import { ActivityPlayer } from '@/features/lessons/components/ActivityPlayer';
 import { ResultView } from '@/features/lessons/components/ResultView';
 import { useProgressStore } from '@/features/progress/store';
 import { EmptyState, Screen } from '@/ui';
 
 interface Outcome {
-  xp: number;
+  reward: Reward;
   correct: number;
   total: number;
 }
@@ -47,12 +49,14 @@ export default function LessonScreen() {
         icon="sparkles"
         tone="success"
         title={t('player.lessonComplete')}
-        highlight={outcome.xp > 0 ? t('player.xpEarned', { xp: outcome.xp }) : undefined}
+        highlight={
+          outcome.reward.xp > 0 ? t('player.xpEarned', { xp: outcome.reward.xp }) : undefined
+        }
         lines={[
           ...(outcome.total > 0
             ? [t('player.correctCount', { correct: outcome.correct, total: outcome.total })]
             : []),
-          ...(outcome.xp === 0 ? [t('player.xpAlready')] : []),
+          ...(outcome.reward.xp === 0 ? [t('player.xpAlready')] : []),
         ]}
         primary={
           next
@@ -70,7 +74,9 @@ export default function LessonScreen() {
             : { label: t('player.backToCourse'), onPress: backToCourse }
         }
         secondary={next ? { label: t('player.backToCourse'), onPress: backToCourse } : undefined}
-      />
+      >
+        <RewardSummary reward={outcome.reward} />
+      </ResultView>
     );
   }
 
@@ -80,8 +86,8 @@ export default function LessonScreen() {
       steps={lesson.steps}
       onClose={backToCourse}
       onComplete={(results) => {
-        const xp = completeLesson({ courseId: course.id, lessonId: lesson.id, xp: lesson.xp });
-        setOutcome({ xp, correct: results.filter(Boolean).length, total: results.length });
+        const reward = completeLesson({ courseId: course.id, lessonId: lesson.id, xp: lesson.xp });
+        setOutcome({ reward, correct: results.filter(Boolean).length, total: results.length });
       }}
     />
   );

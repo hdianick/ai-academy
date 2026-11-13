@@ -10,3 +10,4 @@ export * from './ScreenHeader';
 export * from './SearchField';
 export * from './StatTile';
 export * from './StateView';
+export * from './FadeIn';

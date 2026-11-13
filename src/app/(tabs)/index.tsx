@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { colors, spacing } from '@/core/theme';
+import { colors, radius, spacing } from '@/core/theme';
 import { coursesRepository } from '@/data/repositories/courses';
 import { CourseCard } from '@/features/courses/components/CourseCard';
 import {
@@ -11,8 +11,14 @@ import {
   getCourseProgress,
   getNextActivity,
 } from '@/features/progress/progress';
+import {
+  DailyGoalCard,
+  LevelCard,
+  StreakCard,
+} from '@/features/gamification/components/GamificationCards';
+import { useGamification } from '@/features/gamification/hooks';
 import { useProgressStore } from '@/features/progress/store';
-import { AppText, Button, Card, DemoBanner, ProgressBar, Screen, StatTile } from '@/ui';
+import { AppText, Button, Card, DemoBanner, ProgressBar, Screen } from '@/ui';
 
 function openCourse(courseId: string) {
   router.push({ pathname: '/course/[courseId]', params: { courseId } });
@@ -21,6 +27,7 @@ function openCourse(courseId: string) {
 export default function HomeScreen() {
   const { t } = useTranslation();
   const progressState = useProgressStore();
+  const game = useGamification();
   const courses = coursesRepository.list();
 
   const continueCourse = getContinueCourse(courses, progressState);
@@ -28,8 +35,6 @@ export default function HomeScreen() {
   const featuredProgress = featured ? getCourseProgress(featured, progressState) : null;
   const next = featured ? getNextActivity(featured, progressState) : null;
 
-  const lessonsDone = Object.keys(progressState.lessons).length;
-  const coursesDone = courses.filter((c) => getCourseProgress(c, progressState).completed).length;
   const recommended = courses.filter((course) => course.id !== featured?.id).slice(0, 3);
 
   const openNext = () => {
@@ -46,28 +51,38 @@ export default function HomeScreen() {
       <DemoBanner />
 
       <View style={styles.header}>
-        <AppText variant="overline" color="accent">
-          {t('app.payoff')}
-        </AppText>
+        <View style={styles.topRow}>
+          <AppText variant="overline" color="accent">
+            {t('app.payoff')}
+          </AppText>
+          <View style={styles.pills}>
+            <View
+              style={styles.pill}
+              accessible
+              accessibilityLabel={`${t('gamification.streakTitle')}: ${game.streak}`}
+            >
+              <Ionicons
+                name="flame"
+                size={16}
+                color={game.streak > 0 ? colors.streak : colors.textMuted}
+              />
+              <AppText variant="bodyStrong">{game.streak}</AppText>
+            </View>
+            <View
+              style={styles.pill}
+              accessible
+              accessibilityLabel={`${t('home.xpLabel')}: ${game.xp}`}
+            >
+              <Ionicons name="flash" size={16} color={colors.xp} />
+              <AppText variant="bodyStrong">{game.xp}</AppText>
+            </View>
+          </View>
+        </View>
         <AppText variant="title">{t('home.greeting', { name: t('home.guestName') })}</AppText>
         <AppText color="secondary">{t('home.subtitle')}</AppText>
       </View>
 
-      <View style={styles.stats}>
-        <StatTile
-          icon="flash"
-          value={String(progressState.xp)}
-          label={t('home.xpLabel')}
-          color={colors.xp}
-        />
-        <StatTile icon="book" value={String(lessonsDone)} label={t('home.lessonsLabel')} />
-        <StatTile
-          icon="trophy"
-          value={String(coursesDone)}
-          label={t('home.coursesLabel')}
-          color={colors.success}
-        />
-      </View>
+      <DailyGoalCard xpToday={game.xpToday} goal={game.dailyGoal} />
 
       {featured && featuredProgress ? (
         <Card variant="highlight" testID="home-featured">
@@ -103,6 +118,14 @@ export default function HomeScreen() {
         </Card>
       ) : null}
 
+      <StreakCard
+        streak={game.streak}
+        activeToday={game.activeToday}
+        week={game.days.map((day) => ({ label: day.label, active: day.xp > 0 }))}
+      />
+
+      <LevelCard xp={game.xp} />
+
       <View style={styles.sectionHeader}>
         <AppText variant="heading">{t('home.recommendedTitle')}</AppText>
         <Pressable onPress={() => router.push('/academy')} accessibilityRole="link" hitSlop={8}>
@@ -132,7 +155,19 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   header: { gap: spacing.xs },
-  stats: { flexDirection: 'row', gap: spacing.sm },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  pills: { flexDirection: 'row', gap: spacing.sm },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   seeAll: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs },
   list: { gap: spacing.md },

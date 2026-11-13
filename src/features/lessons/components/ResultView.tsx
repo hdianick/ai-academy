@@ -1,10 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps } from 'react';
-import { StyleSheet, View } from 'react-native';
+import type { ComponentProps, ReactNode } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, layout, radius, spacing } from '@/core/theme';
-import { AppText, Button } from '@/ui';
+import { AppText, Button, FadeIn } from '@/ui';
 
 export interface ResultAction {
   label: string;
@@ -20,6 +20,7 @@ export interface ResultViewProps {
   lines: string[];
   primary: ResultAction;
   secondary?: ResultAction;
+  children?: ReactNode;
 }
 
 /** Schermata di esito alla fine di una lezione o di un quiz. */
@@ -31,6 +32,7 @@ export function ResultView({
   lines,
   primary,
   secondary,
+  children,
 }: ResultViewProps) {
   const color = tone === 'success' ? colors.success : colors.warning;
   const soft = tone === 'success' ? colors.successSoft : colors.warningSoft;
@@ -38,24 +40,27 @@ export function ResultView({
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.inner}>
-        <View style={styles.center}>
-          <View style={[styles.iconWrap, { backgroundColor: soft }]}>
+        <ScrollView contentContainerStyle={styles.center} showsVerticalScrollIndicator={false}>
+          <FadeIn pop style={[styles.iconWrap, { backgroundColor: soft }]}>
             <Ionicons name={icon} size={44} color={color} />
-          </View>
+          </FadeIn>
           <AppText variant="title" align="center" accessibilityRole="header">
             {title}
           </AppText>
           {highlight ? (
-            <AppText variant="display" color="xp" align="center" testID="result-highlight">
-              {highlight}
-            </AppText>
+            <FadeIn pop delay={150}>
+              <AppText variant="display" color="xp" align="center" testID="result-highlight">
+                {highlight}
+              </AppText>
+            </FadeIn>
           ) : null}
           {lines.map((line) => (
             <AppText key={line} color="secondary" align="center">
               {line}
             </AppText>
           ))}
-        </View>
+          {children}
+        </ScrollView>
         <View style={styles.actions}>
           <Button
             label={primary.label}
@@ -88,7 +93,13 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     justifyContent: 'space-between',
   },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
+  center: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.md,
+    paddingBottom: spacing.xl,
+  },
   iconWrap: {
     width: 96,
     height: 96,
@@ -97,5 +108,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
-  actions: { gap: spacing.sm },
+  actions: { gap: spacing.sm, paddingTop: spacing.sm },
 });
