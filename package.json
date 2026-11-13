@@ -55,7 +55,8 @@
     "test:watch": "jest --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run typecheck && npm run lint && npm test -- --ci"
+    "check": "npm run typecheck && npm run lint && npm test -- --ci",
+    "preview:build": "node scripts/build-preview.mjs"
   },
   "private": true,
   "jest": {
