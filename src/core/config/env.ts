@@ -17,6 +17,9 @@ export interface AppConfig {
 
 export interface RawEnv {
   EXPO_PUBLIC_SUPABASE_URL?: string;
+  /** Nome attuale della chiave client di Supabase. */
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY?: string;
+  /** Nome storico della stessa chiave (progetti meno recenti). */
   EXPO_PUBLIC_SUPABASE_ANON_KEY?: string;
 }
 
@@ -26,7 +29,11 @@ function isValidHttpsUrl(value: string): boolean {
 
 export function resolveConfig(env: RawEnv): AppConfig {
   const url = env.EXPO_PUBLIC_SUPABASE_URL?.trim() ?? '';
-  const anonKey = env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? '';
+  const anonKey = (
+    env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    env.EXPO_PUBLIC_SUPABASE_ANON_KEY ??
+    ''
+  ).trim();
 
   if (url && anonKey && isValidHttpsUrl(url)) {
     return { mode: 'supabase', supabase: { url, anonKey } };
@@ -44,6 +51,7 @@ export function resolveConfig(env: RawEnv): AppConfig {
 // Expo sostituisce staticamente solo gli accessi diretti `process.env.EXPO_PUBLIC_*`.
 export const appConfig: AppConfig = resolveConfig({
   EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
+  EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
 });
 

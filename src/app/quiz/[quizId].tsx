@@ -20,6 +20,8 @@ import {
   quizPool,
   type SessionReport,
 } from '@/features/lessons/session';
+import { useAccess } from '@/features/entitlements/hooks';
+import { LockedContent } from '@/features/entitlements/LockedContent';
 import { useProgressStore } from '@/features/progress/store';
 import { AppText, Button, Card, EmptyState, IconButton, Screen } from '@/ui';
 
@@ -42,6 +44,7 @@ function QuizFlow({ quizId }: { quizId: string | undefined }) {
   } | null>(null);
 
   const found = quizId ? coursesRepository.findQuiz(quizId) : null;
+  const access = useAccess();
 
   if (!found) {
     return (
@@ -57,6 +60,7 @@ function QuizFlow({ quizId }: { quizId: string | undefined }) {
   }
 
   const { course, quiz } = found;
+  if (!access.can(course.requiredTier)) return <LockedContent tier={course.requiredTier} />;
   const isFinal = quiz.kind === 'final';
   const passingPercent = Math.round(quiz.passingScore * 100);
   const pool = quizPool(course, quiz);

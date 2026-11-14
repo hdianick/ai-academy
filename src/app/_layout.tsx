@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/core/theme';
+import { useAuthStore } from '@/features/auth/store';
 import { ErrorState, Screen } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
@@ -37,6 +38,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 
 export default function RootLayout() {
   useEffect(() => {
+    useAuthStore.getState().init();
     void SplashScreen.hideAsync();
   }, []);
 

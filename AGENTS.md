@@ -46,6 +46,6 @@ Docs: https://docs.expo.dev/eas/index.md
 - Mai testo hardcoded nelle schermate: usa `useTranslation()`.
 - Mai colori/spaziature hardcoded: usa i token in `src/core/theme`.
 - Componenti UI riutilizzabili in `src/ui`, logica per funzionalità in `src/features/<feature>`.
-- Nessuna credenziale nel repository. Le uniche variabili client sono `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY` (vedi `.env.example`).
+- Nessuna credenziale nel repository. Le uniche variabili client sono `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (o la vecchia `EXPO_PUBLIC_SUPABASE_ANON_KEY`) (vedi `.env.example`).
 - Le funzioni non ancora collegate a un backend reale devono essere chiaramente marcate come "demo" nell'interfaccia.
 - Prima di ogni commit: `npm run check` e `npm run format:check`.

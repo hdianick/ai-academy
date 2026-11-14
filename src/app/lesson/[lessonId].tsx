@@ -18,6 +18,8 @@ import {
   newSeed,
   type SessionReport,
 } from '@/features/lessons/session';
+import { useAccess } from '@/features/entitlements/hooks';
+import { LockedContent } from '@/features/entitlements/LockedContent';
 import { useProgressStore } from '@/features/progress/store';
 import { EmptyState, Screen } from '@/ui';
 
@@ -35,6 +37,7 @@ function LessonFlow({ lessonId }: { lessonId: string | undefined }) {
   const { t } = useTranslation();
   const completeLesson = useProgressStore((state) => state.completeLesson);
   const location = lessonId ? coursesRepository.findLesson(lessonId) : null;
+  const access = useAccess();
 
   const [phase, setPhase] = useState<Phase>('theory');
   const [returnTo, setReturnTo] = useState<ReturnTo>(null);
@@ -59,6 +62,7 @@ function LessonFlow({ lessonId }: { lessonId: string | undefined }) {
   }
 
   const { course, lesson } = location;
+  if (!access.can(course.requiredTier)) return <LockedContent tier={course.requiredTier} />;
   const backToCourse = () =>
     router.replace({ pathname: '/course/[courseId]', params: { courseId: course.id } });
 

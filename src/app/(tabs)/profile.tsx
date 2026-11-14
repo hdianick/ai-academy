@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 import { colors, radius, spacing } from '@/core/theme';
 import { coursesRepository } from '@/data/repositories/courses';
+import { useAuthStore } from '@/features/auth/store';
+import { useIsStaff } from '@/features/entitlements/hooks';
 import { badgeDefinitions, dailyGoalOptions } from '@/features/gamification/badges';
 import {
   BadgeTile,
@@ -25,6 +27,12 @@ export default function ProfileScreen() {
   const setDailyGoal = useProgressStore((s) => s.setDailyGoal);
   const reset = useProgressStore((s) => s.reset);
   const [confirmReset, setConfirmReset] = useState(false);
+  const authStatus = useAuthStore((s) => s.status);
+  const email = useAuthStore((s) => s.email);
+  const profile = useAuthStore((s) => s.profile);
+  const signOut = useAuthStore((s) => s.signOut);
+  const isStaff = useIsStaff();
+  const signedIn = authStatus === 'signedIn';
 
   const level = getLevelInfo(game.xp).level;
   const completedCourses = coursesRepository
@@ -41,15 +49,71 @@ export default function ProfileScreen() {
           <Ionicons name="person" size={34} color={colors.textOnAccent} />
         </View>
         <View style={styles.flex}>
-          <AppText variant="title">{t('profile.guestName')}</AppText>
+          <AppText variant="title">
+            {signedIn && profile?.displayName ? profile.displayName : t('profile.guestName')}
+          </AppText>
           <AppText color="accent" variant="bodyStrong">
             {t(`rank.${getRank(level)}`)} · {t('gamification.level', { level })}
           </AppText>
           <AppText variant="caption" color="muted">
-            {t('profile.demoAccount')}
+            {signedIn && email
+              ? t('auth.signedInAs', { email })
+              : authStatus === 'demo'
+                ? t('profile.demoAccount')
+                : t('auth.accountSignedOut')}
           </AppText>
         </View>
       </View>
+
+      <Card testID="account-card">
+        <AppText variant="subheading">{t('auth.accountTitle')}</AppText>
+        {signedIn ? (
+          <>
+            <AppText color="secondary">
+              {t('plans.current')}: {t(`tiers.${profile?.plan ?? 'free'}`)}
+            </AppText>
+            <View style={styles.chips}>
+              <Button
+                label={t('plans.seePlans')}
+                variant="secondary"
+                onPress={() => router.push('/plans')}
+              />
+              {isStaff ? (
+                <Button
+                  label={t('admin.entry')}
+                  variant="secondary"
+                  onPress={() => router.push('/admin')}
+                />
+              ) : null}
+              <Button
+                label={t('auth.signOut')}
+                variant="ghost"
+                onPress={() => void signOut()}
+                testID="sign-out"
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            <AppText color="secondary">
+              {authStatus === 'demo' ? t('auth.accountDemo') : t('auth.accountSignedOut')}
+            </AppText>
+            <View style={styles.chips}>
+              <Button
+                label={t('auth.signInOrUp')}
+                onPress={() => router.push('/login')}
+                testID="open-login"
+              />
+              <Button
+                label={t('plans.seePlans')}
+                variant="secondary"
+                onPress={() => router.push('/plans')}
+                testID="open-plans"
+              />
+            </View>
+          </>
+        )}
+      </Card>
 
       <LevelCard xp={game.xp} />
 

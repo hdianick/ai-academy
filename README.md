@@ -83,14 +83,15 @@ Regola: in `src/app/` solo route. Logica e componenti vivono in `src/features/` 
 | Fase | Contenuto                                                                 | Stato         |
 | ---- | ------------------------------------------------------------------------- | ------------- |
 | 0    | Setup, TypeScript strict, lint, test, CI, design token, i18n, navigazione | ✅ completata |
-| 1    | Design system completo, animazioni, stati di caricamento/errore           | ⏳            |
-| 2    | Modello dei contenuti, 5 corsi completi, catalogo Academy con filtri      | ⏳            |
-| 3    | Lesson player, esercizi interattivi, quiz, test finale, progressi         | ⏳            |
-| 4    | Gamification: XP, livelli, streak, badge, obiettivi giornalieri           | ⏳            |
-| 5    | AI Tools, Practice Lab, Challenges                                        | ⏳            |
-| 6    | AI Tutor (modalità demo)                                                  | ⏳            |
-| 7    | Supabase: autenticazione, schema, RLS, sincronizzazione                   | ⏳            |
-| 8    | Piani FREE/PREMIUM/PRO, ruoli admin, accessibilità, EAS, rifinitura       | ⏳            |
+| 1    | Design system completo, animazioni, stati di caricamento/errore           | ✅ completata |
+| 2    | Modello dei contenuti, 5 corsi completi, catalogo Academy con filtri      | ✅ completata |
+| 3    | Lesson player, esercizi interattivi, quiz, test finale, progressi         | ✅ completata |
+| 4    | Gamification: XP, livelli, streak, badge, obiettivi giornalieri           | ✅ completata |
+| 5    | AI Tools, Practice Lab, Challenges                                        | ✅ completata |
+| 6    | AI Tutor (modalità demo)                                                  | ✅ completata |
+| 7    | Supabase: autenticazione, schema, RLS, sincronizzazione                   | ✅ completata |
+| 8    | Piani FREE/PREMIUM/PRO, ruoli admin, accessibilità, EAS, rifinitura       | ✅ completata |
+| 9    | Pagamenti (RevenueCat), pannello admin operativo, AI Tutor con API reale  | 🔜 prossima   |
 
 ## AI Tutor
 
@@ -112,3 +113,31 @@ Le chiavi dei provider AI non devono mai finire nell'app o in variabili `EXPO_PU
 
 I nomi degli strumenti AI citati appartengono ai rispettivi proprietari. L'app non usa loghi ufficiali
 e non è affiliata ai produttori degli strumenti.
+
+## Account e database (Supabase)
+
+Senza configurazione l'app parte in **modalità demo**: tutto funziona sul dispositivo, i contenuti premium sono sbloccati e le schermate di accesso mostrano un avviso chiaro.
+
+Per attivare gli account reali segui `supabase/README.md`:
+
+1. crea un progetto Supabase ed esegui `supabase/migrations/20261114000000_init.sql`;
+2. copia `.env.example` in `.env.local` e inserisci URL e chiave _publishable_ (mai la chiave `service_role`);
+3. riavvia l'app: registrazione, accesso, recupero password e sincronizzazione dei progressi si attivano da soli.
+
+Le regole RLS fanno sì che ogni utente legga e scriva solo i propri dati; ruolo e piano possono essere cambiati solo da un amministratore.
+
+## Piani e area admin
+
+- `src/features/entitlements`: regole di accesso Free / Premium / Pro (utente non registrato = Free).
+- `/plans`: presentazione dei piani; i pagamenti arriveranno in una fase successiva.
+- `/admin`: area predisposta, visibile solo a utenti con ruolo `editor` o `admin`.
+
+## Build con EAS
+
+```bash
+npx eas-cli@latest login
+npx eas-cli@latest build --profile preview --platform android   # APK di prova
+npx eas-cli@latest build --profile production --platform all
+```
+
+Le variabili `EXPO_PUBLIC_SUPABASE_*` vanno impostate negli _environment_ di EAS (development / preview / production), non nel repository.

@@ -17,6 +17,7 @@ import {
   StreakCard,
 } from '@/features/gamification/components/GamificationCards';
 import { useGamification } from '@/features/gamification/hooks';
+import { useAuthStore } from '@/features/auth/store';
 import { useProgressStore } from '@/features/progress/store';
 import { ToolsTeaser } from '@/features/tools/components/ToolsTeaser';
 import { AppText, Button, Card, DemoBanner, ProgressBar, Screen } from '@/ui';
@@ -27,6 +28,7 @@ function openCourse(courseId: string) {
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const displayName = useAuthStore((s) => s.profile?.displayName);
   const progressState = useProgressStore();
   const game = useGamification();
   const courses = coursesRepository.list();
@@ -79,7 +81,9 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <AppText variant="title">{t('home.greeting', { name: t('home.guestName') })}</AppText>
+        <AppText variant="title">
+          {t('home.greeting', { name: displayName || t('home.guestName') })}
+        </AppText>
         <AppText color="secondary">{t('home.subtitle')}</AppText>
       </View>
 

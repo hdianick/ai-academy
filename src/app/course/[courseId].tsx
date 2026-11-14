@@ -9,6 +9,7 @@ import { coursesRepository } from '@/data/repositories/courses';
 import { courseDurationMinutes, courseLessons } from '@/features/courses/catalog';
 import { ActivityRow, type ActivityStatus } from '@/features/courses/components/ActivityRow';
 import { getCourseProgress, getNextActivity } from '@/features/progress/progress';
+import { useAccess } from '@/features/entitlements/hooks';
 import { useProgressStore } from '@/features/progress/store';
 import { AppText, Button, Card, Chip, EmptyState, IconButton, ProgressBar, Screen } from '@/ui';
 
@@ -21,6 +22,7 @@ export default function CourseScreen() {
   const { t } = useTranslation();
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const progressState = useProgressStore();
+  const access = useAccess();
   const course = courseId ? coursesRepository.get(courseId) : null;
 
   if (!course) {
@@ -40,7 +42,12 @@ export default function CourseScreen() {
   const next = getNextActivity(course, progressState);
   const percent = Math.round(progress.ratio * 100);
 
+  const locked = !access.can(course.requiredTier);
   const openActivity = (kind: 'lesson' | 'quiz', id: string) => {
+    if (locked) {
+      router.push('/plans');
+      return;
+    }
     if (kind === 'lesson')
       router.push({ pathname: '/lesson/[lessonId]', params: { lessonId: id } });
     else router.push({ pathname: '/quiz/[quizId]', params: { quizId: id } });
@@ -93,7 +100,11 @@ export default function CourseScreen() {
         {course.requiredTier !== 'free' ? (
           <Chip
             tone="warning"
-            label={t('tiers.demoUnlocked', { tier: t(`tiers.${course.requiredTier}`) })}
+            label={
+              access.demo
+                ? t('tiers.demoUnlocked', { tier: t(`tiers.${course.requiredTier}`) })
+                : t(`tiers.${course.requiredTier}`)
+            }
           />
         ) : null}
       </View>
@@ -110,7 +121,7 @@ export default function CourseScreen() {
           accessibilityLabel={t('course.progress', { percent })}
         />
         <Button
-          label={ctaLabel}
+          label={locked ? t('plans.seePlans') : ctaLabel}
           fullWidth
           testID="course-cta"
           onPress={() => {

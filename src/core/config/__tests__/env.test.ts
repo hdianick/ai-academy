@@ -27,6 +27,14 @@ describe('resolveConfig', () => {
     expect(warn).toHaveBeenCalledTimes(1);
   });
 
+  it('accetta anche il nuovo nome “publishable key”', () => {
+    const config = resolveConfig({
+      EXPO_PUBLIC_SUPABASE_URL: 'https://abc.supabase.co',
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_x',
+    });
+    expect(config.supabase?.anonKey).toBe('sb_publishable_x');
+  });
+
   it('rifiuta URL non https', () => {
     const config = resolveConfig({
       EXPO_PUBLIC_SUPABASE_URL: 'http://abc.supabase.co',
