@@ -29,7 +29,15 @@ const mimeTypes = {
 rmSync(exportDir, { recursive: true, force: true });
 execSync(`npx expo export --platform web --output-dir ${exportDir}`, {
   stdio: 'inherit',
-  env: { ...process.env, EXPO_NO_TELEMETRY: '1' },
+  // L'anteprima statica non può contattare server esterni: resta sempre in modalità demo.
+  env: {
+    ...process.env,
+    EXPO_NO_TELEMETRY: '1',
+    EXPO_NO_DOTENV: '1',
+    EXPO_PUBLIC_SUPABASE_URL: '',
+    EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '',
+    EXPO_PUBLIC_SUPABASE_ANON_KEY: '',
+  },
 });
 
 const html = readFileSync(join(exportDir, 'index.html'), 'utf8');
