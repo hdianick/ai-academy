@@ -335,6 +335,11 @@ export const it = {
     haveAccount: 'Hai già un account? Accedi',
     backToSignIn: 'Torna all’accesso',
     signOut: 'Esci',
+    newPasswordTitle: 'Nuova password',
+    newPasswordSubtitle: 'Scegli una nuova password per il tuo account.',
+    newPasswordAction: 'Salva la password',
+    passwordUpdated: 'Password aggiornata! Ora sei connesso.',
+    goToProfile: 'Vai al profilo',
     signedInAs: 'Accesso effettuato come {{email}}',
     resetSent:
       'Se l’indirizzo è registrato riceverai a breve un’email con il link per reimpostare la password.',

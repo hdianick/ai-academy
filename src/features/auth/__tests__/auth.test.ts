@@ -105,3 +105,14 @@ describe('unione dei progressi', () => {
     expect(normalizeProgress('x')).toEqual(emptyProgress);
   });
 });
+
+describe('newPasswordSchema', () => {
+  it('requires matching strong passwords', () => {
+    const { newPasswordSchema, validate } = jest.requireActual('../validation');
+    expect(
+      validate(newPasswordSchema, { password: 'abc12345', confirmPassword: 'abc12345' }).ok,
+    ).toBe(true);
+    const bad = validate(newPasswordSchema, { password: 'abc12345', confirmPassword: 'x' });
+    expect(bad.ok).toBe(false);
+  });
+});

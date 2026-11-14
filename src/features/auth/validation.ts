@@ -42,6 +42,13 @@ export const signUpSchema = z
 
 export const resetSchema = z.object({ email });
 
+export const newPasswordSchema = z
+  .object({ password, confirmPassword: z.string() })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'auth.errors.passwordMismatch',
+    path: ['confirmPassword'],
+  });
+
 export type FieldErrors<T> = Partial<Record<keyof T, AuthErrorKey>>;
 
 /** Valida e restituisce i dati puliti oppure il primo errore per ciascun campo. */

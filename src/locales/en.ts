@@ -331,6 +331,11 @@ export const en: TranslationShape = {
     haveAccount: 'Already have an account? Sign in',
     backToSignIn: 'Back to sign in',
     signOut: 'Sign out',
+    newPasswordTitle: 'New password',
+    newPasswordSubtitle: 'Choose a new password for your account.',
+    newPasswordAction: 'Save password',
+    passwordUpdated: 'Password updated! You are now signed in.',
+    goToProfile: 'Go to profile',
     signedInAs: 'Signed in as {{email}}',
     resetSent:
       'If the address is registered you will shortly receive an email with a link to reset your password.',

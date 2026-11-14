@@ -4,6 +4,9 @@
  * - Con Supabase: registrazione, accesso, recupero password e sincronizzazione dei progressi.
  */
 import type { Session } from '@supabase/supabase-js';
+import Constants from 'expo-constants';
+import { router } from 'expo-router';
+import { Platform } from 'react-native';
 import { create } from 'zustand';
 
 import { supabase } from '@/core/supabase/client';
@@ -39,7 +42,15 @@ interface AuthState {
     displayName: string;
   }) => Promise<Result & { needsConfirmation?: boolean }>;
   resetPassword: (email: string) => Promise<Result>;
+  updatePassword: (password: string) => Promise<Result>;
   signOut: () => Promise<void>;
+}
+
+/** Indirizzo a cui Supabase rimanda dopo la conferma email o il recupero password (solo web). */
+function authRedirectUrl(path = ''): string | undefined {
+  if (Platform.OS !== 'web' || typeof window === 'undefined') return undefined;
+  const baseUrl = Constants.expoConfig?.experiments?.baseUrl ?? '';
+  return `${window.location.origin}${baseUrl}/${path}`;
 }
 
 let initialized = false;
@@ -118,6 +129,13 @@ export const useAuthStore = create<AuthState>()((set) => {
       initialized = true;
       void supabase.auth.getSession().then(({ data }) => applySession(data.session));
       supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setTimeout(() => {
+            void applySession(session);
+            router.replace('/update-password');
+          }, 0);
+          return;
+        }
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
           // Rimandato per non eseguire chiamate dentro il callback di Supabase.
           setTimeout(() => void applySession(session), 0);
@@ -136,7 +154,7 @@ export const useAuthStore = create<AuthState>()((set) => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { display_name: displayName } },
+        options: { data: { display_name: displayName }, emailRedirectTo: authRedirectUrl() },
       });
       if (error) return { ok: false, error: mapAuthError(error) };
       // Senza sessione significa che è richiesta la conferma via email.
@@ -145,7 +163,15 @@ export const useAuthStore = create<AuthState>()((set) => {
 
     resetPassword: async (email) => {
       if (!supabase) return { ok: false, error: 'auth.errors.unknown' };
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: authRedirectUrl('update-password'),
+      });
+      return error ? { ok: false, error: mapAuthError(error) } : { ok: true };
+    },
+
+    updatePassword: async (password) => {
+      if (!supabase) return { ok: false, error: 'auth.errors.unknown' };
+      const { error } = await supabase.auth.updateUser({ password });
       return error ? { ok: false, error: mapAuthError(error) } : { ok: true };
     },
 
