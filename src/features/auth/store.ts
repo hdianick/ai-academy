@@ -44,6 +44,8 @@ interface AuthState {
   resetPassword: (email: string) => Promise<Result>;
   updatePassword: (password: string) => Promise<Result>;
   signOut: () => Promise<void>;
+  /** Ricarica ruolo e piano (es. dopo una modifica dall'area admin). */
+  refreshProfile: () => Promise<void>;
 }
 
 /** Indirizzo a cui Supabase rimanda dopo la conferma email o il recupero password (solo web). */
@@ -107,7 +109,7 @@ function stopProgressSync() {
   uploadTimer = null;
 }
 
-export const useAuthStore = create<AuthState>()((set) => {
+export const useAuthStore = create<AuthState>()((set, get) => {
   const applySession = async (session: Session | null) => {
     if (!session) {
       stopProgressSync();
@@ -167,6 +169,13 @@ export const useAuthStore = create<AuthState>()((set) => {
         redirectTo: authRedirectUrl('update-password'),
       });
       return error ? { ok: false, error: mapAuthError(error) } : { ok: true };
+    },
+
+    refreshProfile: async () => {
+      const id = get().profile?.id;
+      if (!id) return;
+      const profile = await loadProfile(id);
+      if (profile) set({ profile });
     },
 
     updatePassword: async (password) => {

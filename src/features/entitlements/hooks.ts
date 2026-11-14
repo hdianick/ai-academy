@@ -14,3 +14,7 @@ export function useIsStaff(): boolean {
   const role = useAuthStore((s) => s.profile?.role);
   return role === 'admin' || role === 'editor';
 }
+
+export function useIsAdmin(): boolean {
+  return useAuthStore((s) => s.profile?.role) === 'admin';
+}

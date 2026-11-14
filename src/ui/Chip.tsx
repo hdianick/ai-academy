@@ -34,7 +34,14 @@ export function Chip({ label, selected = false, onPress, tone = 'default', testI
 
   if (!onPress) {
     return (
-      <View style={[styles.base, { backgroundColor: toneStyle.backgroundColor }]} testID={testID}>
+      <View
+        style={[
+          styles.base,
+          { backgroundColor: selected ? colors.primary : toneStyle.backgroundColor },
+        ]}
+        accessibilityState={selected ? { selected } : undefined}
+        testID={testID}
+      >
         {content}
       </View>
     );

@@ -30,3 +30,10 @@ L'app funziona in **modalità demo** finché non configuri Supabase. Per attivar
 
 - Nell'app va solo la chiave **publishable**: i dati sono protetti dalle policy RLS.
 - La chiave segreta (`service_role` / secret) non va mai nell'app né nel repository.
+
+## Aggiornamenti dello schema
+
+Esegui i file di `migrations/` in ordine di data nel SQL Editor:
+
+1. `20261114000000_init.sql` — profili, progressi, contenuti, regole di sicurezza.
+2. `20261114120000_admin.sql` — email nei profili, statistiche per lo staff, avvisi nella Home.

@@ -17,6 +17,7 @@ import {
   StreakCard,
 } from '@/features/gamification/components/GamificationCards';
 import { useGamification } from '@/features/gamification/hooks';
+import { AnnouncementsBanner } from '@/features/announcements/AnnouncementsBanner';
 import { useAuthStore } from '@/features/auth/store';
 import { useProgressStore } from '@/features/progress/store';
 import { ToolsTeaser } from '@/features/tools/components/ToolsTeaser';
@@ -86,6 +87,8 @@ export default function HomeScreen() {
         </AppText>
         <AppText color="secondary">{t('home.subtitle')}</AppText>
       </View>
+
+      <AnnouncementsBanner />
 
       <DailyGoalCard xpToday={game.xpToday} goal={game.dailyGoal} />
 
