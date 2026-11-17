@@ -198,6 +198,8 @@ export const en: TranslationShape = {
     relatedCoursesTitle: 'Related courses',
     difficulty: 'Difficulty: {{level}}',
     officialSite: 'Official website',
+    discontinued: 'Service closed',
+    renamed: 'New name',
     reviewed:
       'Profile updated {{date}}. Features, plans and prices change often: always check the official website.',
     trademark: '{{name}} is a trademark of {{company}}. AI Academy is not affiliated.',
@@ -539,6 +541,25 @@ export const en: TranslationShape = {
       cancel: 'Cancel',
       empty: 'No notices published.',
       published: 'Published on {{date}}',
+    },
+  },
+  updates: {
+    available: 'A new version with updated content is available.',
+    apply: 'Update',
+  },
+  news: {
+    title: 'AI news',
+    subtitle: 'What changed in AI tools, with the source of every story.',
+    latest: 'Latest news',
+    seeAll: 'All news',
+    source: 'Source: {{name}}',
+    verifiedOn: 'Content checked on {{date}}',
+    autoCheck: 'Tool cards and news are checked every week against official sources.',
+    related: 'News about this tool',
+    kinds: {
+      launch: 'Launch',
+      change: 'Change',
+      closure: 'Closure',
     },
   },
   common: {

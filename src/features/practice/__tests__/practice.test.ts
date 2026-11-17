@@ -47,7 +47,15 @@ describe('catalogo strumenti', () => {
       filterTools(demoTools, { category: 'video' })
         .map((t) => t.id)
         .sort(),
+    ).toEqual(['runway', 'veo']);
+    expect(
+      filterTools(demoTools, { category: 'video', includeDiscontinued: true })
+        .map((t) => t.id)
+        .sort(),
     ).toEqual(['runway', 'sora', 'veo']);
+    expect(filterTools(demoTools, { query: 'notebooklm' }).map((t) => t.id)).toEqual([
+      'notebooklm',
+    ]);
     expect(filterTools(demoTools, { query: 'fonti', category: 'research' }).length).toBeGreaterThan(
       0,
     );

@@ -311,13 +311,13 @@ export const introAi = defineCourse({
             ),
             theory('Immagini, video e audio', [
               'I modelli generativi creano immagini da una descrizione testuale e modificano foto esistenti con istruzioni a parole (“cambia lo sfondo”, “rendi la luce più calda”). Strumenti come Midjourney e Nano Banana sono specializzati in questo.',
-              'Altri modelli generano brevi video (Runway, Sora, Veo), voci realistiche e doppiaggi (ElevenLabs), musica (Suno). L’audio funziona anche al contrario: le registrazioni delle riunioni possono essere trascritte e riassunte.',
+              'Altri modelli generano brevi video (Runway, Veo), voci realistiche e doppiaggi (ElevenLabs), musica (Suno). L’audio funziona anche al contrario: le registrazioni delle riunioni possono essere trascritte e riassunte.',
             ]),
             theory(
               'Codice, ricerca e azioni',
               [
                 'Gli assistenti spiegano, scrivono e correggono codice; strumenti come Cursor e Claude Code lavorano direttamente su interi progetti software.',
-                'Alcuni strumenti cercano sul web e citano le fonti (ad esempio Perplexity), altri rispondono solo sulla base dei tuoi documenti (NotebookLM). Gli agenti, infine, possono svolgere azioni in più passaggi: cercare, compilare, inviare, sempre entro i permessi che concedi.',
+                'Alcuni strumenti cercano sul web e citano le fonti (ad esempio Perplexity), altri rispondono solo sulla base dei tuoi documenti (Gemini Notebook, prima chiamato NotebookLM). Gli agenti, infine, possono svolgere azioni in più passaggi: cercare, compilare, inviare, sempre entro i permessi che concedi.',
               ],
               {
                 tip: 'Scegli lo strumento in base al compito: un generalista per scrivere e ragionare, uno specializzato per immagini, video, ricerca con fonti o automazioni.',

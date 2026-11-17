@@ -47,4 +47,14 @@ export interface AiTool {
   website: string;
   /** Mese dell'ultima revisione del contenuto (YYYY-MM). */
   lastReviewed: string;
+  /** `discontinued`: il servizio non è più disponibile (la scheda resta per chi lo cerca). */
+  status?: 'active' | 'discontinued';
+  /** Spiegazione mostrata in evidenza sulla scheda (es. chiusura o cambio di nome). */
+  statusNote?: string;
+  /** Nomi usati in passato, per ritrovare lo strumento con la ricerca. */
+  formerNames?: string[];
+}
+
+export function isDiscontinued(tool: AiTool): boolean {
+  return tool.status === 'discontinued';
 }

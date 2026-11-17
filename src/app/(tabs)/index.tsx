@@ -17,6 +17,7 @@ import {
   StreakCard,
 } from '@/features/gamification/components/GamificationCards';
 import { useGamification } from '@/features/gamification/hooks';
+import { NewsTeaser } from '@/features/news/components/NewsTeaser';
 import { AnnouncementsBanner } from '@/features/announcements/AnnouncementsBanner';
 import { useAuthStore } from '@/features/auth/store';
 import { useProgressStore } from '@/features/progress/store';
@@ -135,6 +136,8 @@ export default function HomeScreen() {
       <LevelCard xp={game.xp} />
 
       <ToolsTeaser />
+
+      <NewsTeaser />
 
       <View style={styles.sectionHeader}>
         <AppText variant="heading">{t('home.recommendedTitle')}</AppText>

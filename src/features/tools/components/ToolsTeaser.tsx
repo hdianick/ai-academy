@@ -10,7 +10,7 @@ import { AppText, Card } from '@/ui';
 /** Scheda che porta al catalogo AI Tools. */
 export function ToolsTeaser() {
   const { t } = useTranslation();
-  const count = toolsRepository.list().length;
+  const count = toolsRepository.list().filter((tool) => tool.status !== 'discontinued').length;
   return (
     <Card
       onPress={() => router.push('/tools')}

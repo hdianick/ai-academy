@@ -201,6 +201,8 @@ export const it = {
     relatedCoursesTitle: 'Corsi collegati',
     difficulty: 'Difficoltà: {{level}}',
     officialSite: 'Sito ufficiale',
+    discontinued: 'Servizio chiuso',
+    renamed: 'Nuovo nome',
     reviewed:
       'Scheda aggiornata a {{date}}. Funzioni, piani e prezzi cambiano spesso: verifica sempre sul sito ufficiale.',
     trademark: '{{name}} è un marchio di {{company}}. AI Academy non è affiliata.',
@@ -546,6 +548,25 @@ export const it = {
       cancel: 'Annulla',
       empty: 'Nessun avviso pubblicato.',
       published: 'Pubblicato il {{date}}',
+    },
+  },
+  updates: {
+    available: 'È disponibile una nuova versione con contenuti aggiornati.',
+    apply: 'Aggiorna',
+  },
+  news: {
+    title: 'Novità AI',
+    subtitle: 'Cosa è cambiato negli strumenti AI, con la fonte di ogni notizia.',
+    latest: 'Ultime novità',
+    seeAll: 'Tutte le novità',
+    source: 'Fonte: {{name}}',
+    verifiedOn: 'Contenuti verificati il {{date}}',
+    autoCheck: 'Schede e novità vengono controllate ogni settimana su fonti ufficiali.',
+    related: 'Novità su questo strumento',
+    kinds: {
+      launch: 'Lancio',
+      change: 'Cambiamento',
+      closure: 'Chiusura',
     },
   },
   common: {

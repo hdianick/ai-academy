@@ -37,9 +37,13 @@ jobs:
           EXPO_NO_TELEMETRY: '1'
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          EXPO_PUBLIC_APP_VERSION: ${{ github.sha }}
         run: npx expo export --platform web --output-dir dist
-      - name: Fallback per i link diretti
-        run: cp dist/index.html dist/404.html && touch dist/.nojekyll
+      - name: Fallback per i link diretti e file di versione
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+          echo "{\"version\":\"${{ github.sha }}\",\"builtAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > dist/version.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

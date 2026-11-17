@@ -8,6 +8,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/core/theme';
 import { useAuthStore } from '@/features/auth/store';
+import { UpdateBanner } from '@/features/updates/UpdateBanner';
+import { useUpdateStore } from '@/features/updates/store';
 import { ErrorState, Screen } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
@@ -39,6 +41,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 export default function RootLayout() {
   useEffect(() => {
     useAuthStore.getState().init();
+    useUpdateStore.getState().start();
     void SplashScreen.hideAsync();
   }, []);
 
@@ -55,6 +58,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="tutor/ask" options={{ presentation: 'modal' }} />
         </Stack>
+        <UpdateBanner />
       </ThemeProvider>
     </SafeAreaProvider>
   );

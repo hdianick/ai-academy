@@ -49,3 +49,5 @@ Docs: https://docs.expo.dev/eas/index.md
 - Nessuna credenziale nel repository. Le uniche variabili client sono `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (o la vecchia `EXPO_PUBLIC_SUPABASE_ANON_KEY`) (vedi `.env.example`).
 - Le funzioni non ancora collegate a un backend reale devono essere chiaramente marcate come "demo" nell'interfaccia.
 - Prima di ogni commit: `npm run check` e `npm run format:check`.
+
+- Informazioni sugli strumenti AI: vanno tenute corrette. Procedura in `docs/CONTROLLO-CONTENUTI.md` (eseguita ogni settimana in automatico).

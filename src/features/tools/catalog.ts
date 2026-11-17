@@ -6,16 +6,24 @@ function normalize(text: string): string {
 
 export function filterTools(
   tools: AiTool[],
-  filters: { query?: string; category?: ToolCategory | null },
+  filters: { query?: string; category?: ToolCategory | null; includeDiscontinued?: boolean },
 ): AiTool[] {
   const words = normalize(filters.query ?? '')
     .split(/\s+/)
     .filter(Boolean);
   return tools.filter((tool) => {
+    if (!filters.includeDiscontinued && tool.status === 'discontinued') return false;
     if (filters.category && !tool.categories.includes(filters.category)) return false;
     if (words.length === 0) return true;
     const haystack = normalize(
-      [tool.name, tool.company, tool.tagline, tool.description, ...tool.features].join(' '),
+      [
+        tool.name,
+        ...(tool.formerNames ?? []),
+        tool.company,
+        tool.tagline,
+        tool.description,
+        ...tool.features,
+      ].join(' '),
     );
     return words.every((word) => haystack.includes(word));
   });
@@ -28,6 +36,10 @@ export function toolsForCourse(
   courseToolNames: string[],
 ): AiTool[] {
   return tools.filter(
-    (tool) => tool.relatedCourseIds.includes(courseId) || courseToolNames.includes(tool.name),
+    (tool) =>
+      tool.status !== 'discontinued' &&
+      (tool.relatedCourseIds.includes(courseId) ||
+        courseToolNames.includes(tool.name) ||
+        (tool.formerNames ?? []).some((name) => courseToolNames.includes(name))),
   );
 }

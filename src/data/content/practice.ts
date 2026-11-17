@@ -237,7 +237,7 @@ export const practiceItems: PracticeItem[] = [
     estimatedMinutes: 4,
     xp: 30,
     icon: 'git-compare-outline',
-    tools: ['Perplexity', 'NotebookLM', 'Midjourney', 'Make', 'Cursor'],
+    tools: ['Perplexity', 'Gemini Notebook', 'Midjourney', 'Make', 'Cursor'],
     steps: [
       choice(
         'Ti serve una risposta aggiornata con le fonti da verificare. Quale strumento è più adatto?',
@@ -247,9 +247,9 @@ export const practiceItems: PracticeItem[] = [
       ),
       choice(
         'Vuoi fare domande solo sui manuali interni dell’azienda, con riferimenti ai passaggi.',
-        ['NotebookLM', 'Runway', 'Zapier', 'Sora'],
+        ['Gemini Notebook', 'Runway', 'Zapier', 'Veo'],
         0,
-        'NotebookLM risponde basandosi solo sulle fonti caricate e cita i passaggi.',
+        'Gemini Notebook (prima chiamato NotebookLM) risponde basandosi solo sulle fonti caricate e cita i passaggi.',
       ),
       choice(
         'Devi collegare il negozio online al foglio di calcolo e avvisare il magazzino a ogni ordine.',
@@ -259,7 +259,7 @@ export const practiceItems: PracticeItem[] = [
       ),
       choice(
         'Vuoi creare la voce narrante di un video tutorial in tre lingue.',
-        ['ElevenLabs', 'Cursor', 'NotebookLM', 'Make'],
+        ['ElevenLabs', 'Cursor', 'Gemini Notebook', 'Make'],
         0,
         'ElevenLabs è specializzato in sintesi vocale e doppiaggio.',
       ),

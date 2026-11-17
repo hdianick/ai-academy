@@ -7,6 +7,8 @@
 import type { AiTool } from '@/features/tools/types';
 
 const REVIEWED = '2026-11';
+/** Schede verificate nell'ultimo controllo (cambio di nome o chiusura). */
+const VERIFIED = '2026-11';
 
 export const demoTools: AiTool[] = [
   {
@@ -173,13 +175,16 @@ export const demoTools: AiTool[] = [
   },
   {
     id: 'notebooklm',
-    name: 'NotebookLM',
+    name: 'Gemini Notebook',
+    formerNames: ['NotebookLM'],
+    statusNote:
+      'Dal 16 luglio 2026 NotebookLM si chiama Gemini Notebook: è lo stesso prodotto, ora integrato anche nell’app Gemini.',
     company: 'Google',
     categories: ['research', 'productivity'],
     icon: 'journal-outline',
     tagline: 'Un assistente che risponde solo dalle tue fonti',
     description:
-      'Carichi documenti, PDF, link e appunti e l’AI risponde basandosi su quelle fonti, con riferimenti. Può creare riassunti, guide di studio e panoramiche audio.',
+      'Carichi documenti, PDF, link e appunti e l’AI risponde basandosi su quelle fonti, con riferimenti. Può creare riassunti, guide di studio e panoramiche audio. I quaderni si usano anche dentro l’app Gemini.',
     features: [
       'Risposte ancorate ai documenti caricati',
       'Citazioni ai passaggi delle fonti',
@@ -200,7 +205,7 @@ export const demoTools: AiTool[] = [
     ],
     relatedCourseIds: ['intro-ai'],
     website: 'https://notebooklm.google.com',
-    lastReviewed: REVIEWED,
+    lastReviewed: VERIFIED,
   },
   {
     id: 'midjourney',
@@ -303,32 +308,34 @@ export const demoTools: AiTool[] = [
     name: 'Sora',
     company: 'OpenAI',
     categories: ['video'],
-    icon: 'videocam-outline',
-    tagline: 'Video realistici da una descrizione',
+    icon: 'videocam-off-outline',
+    tagline: 'Servizio chiuso: usa Runway o Veo',
     description:
-      'Modello di OpenAI per generare video a partire da testo e immagini, con scene realistiche e movimenti di camera.',
+      'Era il generatore di video di OpenAI. L’app e il sito sono stati chiusi il 26 aprile 2026 e l’accesso per gli sviluppatori (API) il 24 settembre 2026: oggi non si possono più creare video con Sora.',
     features: [
-      'Video da testo e immagini',
-      'Scene con più inquadrature',
-      'Stili realistici o illustrati',
-      'Remix di video generati',
+      'App e sito chiusi il 26 aprile 2026',
+      'API per sviluppatori chiusa il 24 settembre 2026',
+      'Alternative attive nel catalogo: Runway e Veo',
     ],
     difficulty: 'intermediate',
     useCases: [
       {
-        title: 'Spot di prova',
+        title: 'Cosa imparare da questa chiusura',
         example:
-          'Una motociclista indossa il casco, abbassa la visiera e parte su una strada di campagna al tramonto. Stile spot pubblicitario.',
+          'Gli strumenti AI possono cambiare o chiudere in pochi mesi: salva sempre una copia dei tuoi lavori e non basare un processo aziendale su un solo servizio.',
       },
       {
-        title: 'Storyboard animato',
+        title: 'Dove creare video oggi',
         example:
-          'Tre scene brevi che mostrano: scelta del casco, prova della taglia, primo viaggio.',
+          'Stesso prompt, altro strumento: apri Runway o Veo e descrivi la scena, ad esempio “Una motociclista abbassa la visiera e parte al tramonto, stile spot”.',
       },
     ],
-    relatedCourseIds: ['ai-images'],
-    website: 'https://openai.com/sora',
-    lastReviewed: REVIEWED,
+    relatedCourseIds: [],
+    website: 'https://help.openai.com/en/articles/20001152',
+    lastReviewed: VERIFIED,
+    status: 'discontinued',
+    statusNote:
+      'OpenAI ha chiuso Sora: app e sito dal 26 aprile 2026, API dal 24 settembre 2026. Per creare video usa Runway o Veo.',
   },
   {
     id: 'veo',

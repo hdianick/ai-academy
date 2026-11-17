@@ -4,12 +4,16 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { colors, radius, spacing } from '@/core/theme';
+import { newsItems } from '@/data/content/news';
 import { coursesRepository } from '@/data/repositories/courses';
 import { toolsRepository } from '@/data/repositories/tools';
 import { CourseCard } from '@/features/courses/components/CourseCard';
+import { NewsCard } from '@/features/news/components/NewsCard';
+import { newsForTool } from '@/features/news/news';
 import { getCourseProgress } from '@/features/progress/progress';
 import { useProgressStore } from '@/features/progress/store';
 import { ToolIcon } from '@/features/tools/components/ToolCard';
+import { isDiscontinued } from '@/features/tools/types';
 import { AppText, Card, Chip, EmptyState, IconButton, Screen } from '@/ui';
 
 function goBack() {
@@ -48,6 +52,8 @@ export default function ToolScreen() {
     );
   }
 
+  const discontinued = isDiscontinued(tool);
+  const relatedNews = newsForTool(newsItems, tool.id);
   const relatedCourses = tool.relatedCourseIds
     .map((id) => coursesRepository.get(id))
     .filter((course) => course !== null);
@@ -71,13 +77,37 @@ export default function ToolScreen() {
         </View>
       </View>
 
+      {tool.statusNote ? (
+        <View
+          style={[styles.status, discontinued ? styles.statusClosed : styles.statusChanged]}
+          accessibilityRole="alert"
+          testID="tool-status"
+        >
+          <Ionicons
+            name={discontinued ? 'close-circle' : 'information-circle'}
+            size={20}
+            color={discontinued ? colors.danger : colors.warning}
+          />
+          <View style={styles.flex}>
+            <AppText variant="bodyStrong">
+              {discontinued ? t('tools.discontinued') : t('tools.renamed')}
+            </AppText>
+            <AppText color="secondary">{tool.statusNote}</AppText>
+          </View>
+        </View>
+      ) : null}
+
       <AppText>{tool.description}</AppText>
 
       <View style={styles.section}>
         <AppText variant="heading">{t('tools.featuresTitle')}</AppText>
         {tool.features.map((feature) => (
           <View key={feature} style={styles.feature}>
-            <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+            <Ionicons
+              name={discontinued ? 'information-circle' : 'checkmark-circle'}
+              size={18}
+              color={discontinued ? colors.textMuted : colors.success}
+            />
             <AppText color="secondary" style={styles.flex}>
               {feature}
             </AppText>
@@ -98,6 +128,15 @@ export default function ToolScreen() {
           </Card>
         ))}
       </View>
+
+      {relatedNews.length > 0 ? (
+        <View style={styles.section}>
+          <AppText variant="heading">{t('news.related')}</AppText>
+          {relatedNews.map((item) => (
+            <NewsCard key={item.id} item={item} />
+          ))}
+        </View>
+      ) : null}
 
       {relatedCourses.length > 0 ? (
         <View style={styles.section}>
@@ -148,6 +187,15 @@ export default function ToolScreen() {
 
 const styles = StyleSheet.create({
   hero: { gap: spacing.sm },
+  status: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    alignItems: 'flex-start',
+  },
+  statusClosed: { backgroundColor: colors.dangerSurface },
+  statusChanged: { backgroundColor: colors.warningSoft },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
   section: { gap: spacing.md },
   feature: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },

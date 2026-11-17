@@ -141,3 +141,9 @@ npx eas-cli@latest build --profile production --platform all
 ```
 
 Le variabili `EXPO_PUBLIC_SUPABASE_*` vanno impostate negli _environment_ di EAS (development / preview / production), non nel repository.
+
+## Contenuti sempre aggiornati
+
+- **Aggiornamento automatico dell'app**: a ogni pubblicazione il sito contiene `version.json`; l'app web lo controlla all'avvio, ogni 5 minuti e quando si torna sull'app, e si ricarica da sola (mai durante una lezione o un quiz: in quel caso mostra il pulsante "Aggiorna").
+- **Novità AI**: `src/data/content/news.ts`, mostrate in Home, nella pagina `/news` e nelle schede degli strumenti, sempre con data e fonte.
+- **Controllo settimanale**: un'attività pianificata verifica schede e novità seguendo `docs/CONTROLLO-CONTENUTI.md` e pubblica le correzioni.
