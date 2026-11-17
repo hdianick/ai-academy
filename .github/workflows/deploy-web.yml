@@ -28,6 +28,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Se un controllo fallisce il sito resta alla versione precedente.
+      - name: Controlli (lint, tipi, test, formattazione)
+        run: npm run check && npm run format:check
       - name: Imposta il percorso del sito
         run: |
           jq '.expo.experiments.baseUrl = "/${{ github.event.repository.name }}"' app.json > app.tmp.json
