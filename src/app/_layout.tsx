@@ -4,6 +4,7 @@ import { DarkTheme, Stack, ThemeProvider, type ErrorBoundaryProps } from 'expo-r
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/core/theme';
@@ -40,6 +41,9 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 }
 
 export default function RootLayout() {
+  // Corsi, strumenti e novità dipendono dalla lingua: quando cambia, tutte le schermate
+  // si ridisegnano (la pagina aperta resta la stessa).
+  const { i18n } = useTranslation();
   useEffect(() => {
     useAuthStore.getState().init();
     useUpdateStore.getState().start();
@@ -52,6 +56,7 @@ export default function RootLayout() {
       <ThemeProvider value={navigationTheme}>
         <StatusBar style="light" />
         <Stack
+          key={i18n.language}
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: colors.background },
