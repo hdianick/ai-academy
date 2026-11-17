@@ -147,3 +147,7 @@ Le variabili `EXPO_PUBLIC_SUPABASE_*` vanno impostate negli _environment_ di EAS
 - **Aggiornamento automatico dell'app**: a ogni pubblicazione il sito contiene `version.json`; l'app web lo controlla all'avvio, ogni 5 minuti e quando si torna sull'app, e si ricarica da sola (mai durante una lezione o un quiz: in quel caso mostra il pulsante "Aggiorna").
 - **Novità AI**: `src/data/content/news.ts`, mostrate in Home, nella pagina `/news` e nelle schede degli strumenti, sempre con data e fonte.
 - **Controllo settimanale**: un'attività pianificata verifica schede e novità seguendo `docs/CONTROLLO-CONTENUTI.md` e pubblica le correzioni.
+
+## Lezioni in audio
+
+Il pulsante con l'altoparlante nella teoria legge la lezione ad alta voce con la sintesi vocale del dispositivo (`expo-speech`): passa da solo alla pagina successiva, si ferma prima delle domande e permette di cambiare velocità (0,85× – 1,3×, preferenza salvata). Logica in `src/features/audio`.

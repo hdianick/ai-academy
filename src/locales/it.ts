@@ -120,6 +120,15 @@ export const it = {
     notFound: 'Contenuto non trovato',
   },
   lesson: {
+    listen: 'Ascolta la lezione',
+    stopListening: 'Ferma l’ascolto',
+    listening: 'In ascolto · voce del dispositivo',
+    speed: 'Velocità {{rate}}',
+    speedLabel: 'Cambia velocità di lettura, ora {{rate}}',
+    tipSpoken: 'Consiglio',
+    exampleSpoken: 'Esempio',
+    noItalianVoice:
+      'Il dispositivo non ha una voce italiana: la lettura potrebbe avere un accento straniero.',
     backToReport: 'Torna al resoconto',
     theoryProgress: 'Teoria · {{current}} di {{total}}',
     questionsProgress: 'Domanda {{current}} di {{total}}',

@@ -1,9 +1,20 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+import { formatRate, theoryScript } from '@/features/audio/narration';
+import { useAudioSettings } from '@/features/audio/settings';
+import {
+  hasItalianVoice,
+  isSpeechSupported,
+  speakChunks,
+  stopSpeaking,
+} from '@/features/audio/speech';
+
 import { colors, layout, radius, spacing } from '@/core/theme';
 import type { TheoryStep } from '@/features/courses/types';
-import { AppText, Button, IconButton, ProgressBar } from '@/ui';
+import { AppText, Button, Chip, IconButton, ProgressBar } from '@/ui';
 
 import { TheoryView } from './exercises';
 import { StudyFrame } from './StudyFrame';
@@ -32,10 +43,45 @@ export function TheoryReader({
   onAskTutor,
 }: TheoryReaderProps) {
   const { t } = useTranslation();
+  const [listening, setListening] = useState(false);
+  const [italianVoice, setItalianVoice] = useState<boolean | null>(null);
+  const rate = useAudioSettings((s) => s.rate);
+  const autoAdvance = useAudioSettings((s) => s.autoAdvance);
+  const cycleRate = useAudioSettings((s) => s.cycleRate);
   const current = pages[page];
-  if (!current) return null;
   const isFirst = page === 0;
   const isLast = page === pages.length - 1;
+  const canSpeak = isSpeechSupported();
+
+  useEffect(() => {
+    if (!canSpeak) return;
+    let active = true;
+    void hasItalianVoice().then((value) => active && setItalianVoice(value));
+    return () => {
+      active = false;
+    };
+  }, [canSpeak]);
+
+  // Legge la pagina corrente; a fine pagina passa alla successiva (modalità ascolto).
+  useEffect(() => {
+    if (!listening || !current) return;
+    speakChunks(
+      theoryScript(current, { tip: t('lesson.tipSpoken'), example: t('lesson.exampleSpoken') }),
+      {
+        rate,
+        onDone: () => {
+          if (!isLast && autoAdvance) onPageChange(page + 1);
+          else setListening(false);
+        },
+        onError: () => setListening(false),
+      },
+    );
+    return () => stopSpeaking();
+    // La lettura riparte solo quando cambiano pagina, velocità o stato di ascolto.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listening, current?.id, rate]);
+
+  if (!current) return null;
 
   return (
     <StudyFrame
@@ -54,6 +100,14 @@ export function TheoryReader({
                 })}
               />
             </View>
+            {canSpeak ? (
+              <IconButton
+                icon={listening ? 'stop-circle-outline' : 'volume-high-outline'}
+                onPress={() => setListening((v) => !v)}
+                accessibilityLabel={listening ? t('lesson.stopListening') : t('lesson.listen')}
+                testID="theory-listen"
+              />
+            ) : null}
             {onAskTutor ? (
               <IconButton
                 icon="chatbubble-ellipses-outline"
@@ -63,6 +117,24 @@ export function TheoryReader({
               />
             ) : null}
           </View>
+          {listening ? (
+            <View style={styles.listeningRow} testID="theory-listening">
+              <Ionicons name="pulse" size={16} color={colors.accent} />
+              <AppText variant="caption" color="accent" style={styles.flex}>
+                {t('lesson.listening')}
+              </AppText>
+              <Chip
+                label={t('lesson.speed', { rate: formatRate(rate) })}
+                onPress={cycleRate}
+                testID="theory-speed"
+              />
+            </View>
+          ) : null}
+          {listening && italianVoice === false ? (
+            <AppText variant="caption" color="muted">
+              {t('lesson.noItalianVoice')}
+            </AppText>
+          ) : null}
           <View style={styles.dotsRow}>
             <AppText variant="caption" color="muted" testID="theory-progress">
               {t('lesson.theoryProgress', { current: page + 1, total: pages.length })}
@@ -124,6 +196,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   flexWide: { flex: 2 },
   topRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  listeningRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   dotsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dots: { flexDirection: 'row', gap: spacing.sm },
   dot: {
