@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { colors, radius, spacing } from '@/core/theme';
-import { newsItems } from '@/data/content/news';
+import { newsRepository } from '@/data/repositories/news';
 import { coursesRepository } from '@/data/repositories/courses';
 import { toolsRepository } from '@/data/repositories/tools';
 import { CourseCard } from '@/features/courses/components/CourseCard';
@@ -53,7 +53,7 @@ export default function ToolScreen() {
   }
 
   const discontinued = isDiscontinued(tool);
-  const relatedNews = newsForTool(newsItems, tool.id);
+  const relatedNews = newsForTool(newsRepository.list(), tool.id);
   const relatedCourses = tool.relatedCourseIds
     .map((id) => coursesRepository.get(id))
     .filter((course) => course !== null);

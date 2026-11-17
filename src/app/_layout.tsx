@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/core/theme';
+import { loadLanguagePreference } from '@/core/i18n/preference';
 import { useAuthStore } from '@/features/auth/store';
 import { UpdateBanner } from '@/features/updates/UpdateBanner';
 import { useUpdateStore } from '@/features/updates/store';
@@ -42,7 +43,8 @@ export default function RootLayout() {
   useEffect(() => {
     useAuthStore.getState().init();
     useUpdateStore.getState().start();
-    void SplashScreen.hideAsync();
+    // La schermata iniziale resta finché non è applicata la lingua scelta dall'utente.
+    void loadLanguagePreference().finally(() => void SplashScreen.hideAsync());
   }, []);
 
   return (

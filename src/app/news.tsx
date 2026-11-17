@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { colors, spacing } from '@/core/theme';
-import { CONTENT_VERIFIED_AT, newsItems } from '@/data/content/news';
+import { newsRepository } from '@/data/repositories/news';
 import { NewsCard } from '@/features/news/components/NewsCard';
 import { formatDay, sortNews } from '@/features/news/news';
 import { AppText, IconButton, Screen, ScreenHeader } from '@/ui';
@@ -23,14 +23,14 @@ export default function NewsScreen() {
         <Ionicons name="shield-checkmark-outline" size={18} color={colors.success} />
         <View style={styles.flex}>
           <AppText variant="bodyStrong">
-            {t('news.verifiedOn', { date: formatDay(CONTENT_VERIFIED_AT, i18n.language) })}
+            {t('news.verifiedOn', { date: formatDay(newsRepository.verifiedAt(), i18n.language) })}
           </AppText>
           <AppText variant="caption" color="muted">
             {t('news.autoCheck')}
           </AppText>
         </View>
       </View>
-      {sortNews(newsItems).map((item) => (
+      {sortNews(newsRepository.list()).map((item) => (
         <NewsCard key={item.id} item={item} />
       ))}
     </Screen>

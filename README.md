@@ -151,3 +151,11 @@ Le variabili `EXPO_PUBLIC_SUPABASE_*` vanno impostate negli _environment_ di EAS
 ## Lezioni in audio
 
 Il pulsante con l'altoparlante nella teoria legge la lezione ad alta voce con la sintesi vocale del dispositivo (`expo-speech`): passa da solo alla pagina successiva, si ferma prima delle domande e permette di cambiare velocità (0,85× – 1,3×, preferenza salvata). Logica in `src/features/audio`.
+
+## Lingue
+
+L'app è in italiano e inglese: la lingua si sceglie nel Profilo (salvata sul dispositivo e nell'account) e, senza una scelta, segue quella del dispositivo.
+
+- Testi dell'interfaccia: `src/locales/it.ts` e `src/locales/en.ts`.
+- Contenuti (corsi, strumenti, Practice Lab, novità, tutor): `src/data/content/` (italiano) e `src/data/content/en/` (inglese), scelti da `src/data/content/registry.ts`.
+- Gli id sono identici nelle due lingue, quindi i progressi valgono in entrambe. Un test verifica struttura, risposte corrette e che nel file inglese non resti testo italiano.

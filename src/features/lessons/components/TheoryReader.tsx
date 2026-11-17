@@ -5,12 +5,8 @@ import { useTranslation } from 'react-i18next';
 
 import { formatRate, theoryScript } from '@/features/audio/narration';
 import { useAudioSettings } from '@/features/audio/settings';
-import {
-  hasItalianVoice,
-  isSpeechSupported,
-  speakChunks,
-  stopSpeaking,
-} from '@/features/audio/speech';
+import { hasVoiceFor, isSpeechSupported, speakChunks, stopSpeaking } from '@/features/audio/speech';
+import { content } from '@/data/content/registry';
 
 import { colors, layout, radius, spacing } from '@/core/theme';
 import type { TheoryStep } from '@/features/courses/types';
@@ -44,7 +40,8 @@ export function TheoryReader({
 }: TheoryReaderProps) {
   const { t } = useTranslation();
   const [listening, setListening] = useState(false);
-  const [italianVoice, setItalianVoice] = useState<boolean | null>(null);
+  const [voiceAvailable, setVoiceAvailable] = useState<boolean | null>(null);
+  const speechLanguage = content().speechLanguage;
   const rate = useAudioSettings((s) => s.rate);
   const autoAdvance = useAudioSettings((s) => s.autoAdvance);
   const cycleRate = useAudioSettings((s) => s.cycleRate);
@@ -56,11 +53,11 @@ export function TheoryReader({
   useEffect(() => {
     if (!canSpeak) return;
     let active = true;
-    void hasItalianVoice().then((value) => active && setItalianVoice(value));
+    void hasVoiceFor(speechLanguage).then((value) => active && setVoiceAvailable(value));
     return () => {
       active = false;
     };
-  }, [canSpeak]);
+  }, [canSpeak, speechLanguage]);
 
   // Legge la pagina corrente; a fine pagina passa alla successiva (modalità ascolto).
   useEffect(() => {
@@ -68,6 +65,7 @@ export function TheoryReader({
     speakChunks(
       theoryScript(current, { tip: t('lesson.tipSpoken'), example: t('lesson.exampleSpoken') }),
       {
+        language: speechLanguage,
         rate,
         onDone: () => {
           if (!isLast && autoAdvance) onPageChange(page + 1);
@@ -130,9 +128,9 @@ export function TheoryReader({
               />
             </View>
           ) : null}
-          {listening && italianVoice === false ? (
+          {listening && voiceAvailable === false ? (
             <AppText variant="caption" color="muted">
-              {t('lesson.noItalianVoice')}
+              {t('lesson.noVoice')}
             </AppText>
           ) : null}
           <View style={styles.dotsRow}>

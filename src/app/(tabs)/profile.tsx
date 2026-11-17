@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 
 import { colors, radius, spacing } from '@/core/theme';
 import { coursesRepository } from '@/data/repositories/courses';
+import { supportedLanguages, type SupportedLanguage } from '@/core/i18n';
+import { setAppLanguage } from '@/core/i18n/preference';
 import { useAuthStore } from '@/features/auth/store';
 import { useIsStaff } from '@/features/entitlements/hooks';
 import { badgeDefinitions, dailyGoalOptions } from '@/features/gamification/badges';
@@ -20,8 +22,11 @@ import { getCourseProgress } from '@/features/progress/progress';
 import { useProgressStore } from '@/features/progress/store';
 import { AppText, Button, Card, Chip, DemoBanner, Screen, StatTile } from '@/ui';
 
+/** Nomi delle lingue scritti nella loro lingua, così si riconoscono sempre. */
+const languageNames: Record<SupportedLanguage, string> = { it: 'Italiano', en: 'English' };
+
 export default function ProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const game = useGamification();
   const progressState = useProgressStore();
   const setDailyGoal = useProgressStore((s) => s.setDailyGoal);
@@ -31,6 +36,7 @@ export default function ProfileScreen() {
   const email = useAuthStore((s) => s.email);
   const profile = useAuthStore((s) => s.profile);
   const signOut = useAuthStore((s) => s.signOut);
+  const saveLocale = useAuthStore((s) => s.saveLocale);
   const isStaff = useIsStaff();
   const signedIn = authStatus === 'signedIn';
 
@@ -218,6 +224,27 @@ export default function ProfileScreen() {
           </AppText>
         </>
       )}
+
+      <Card testID="language-card">
+        <AppText variant="subheading">{t('profile.languageTitle')}</AppText>
+        <AppText variant="caption" color="muted">
+          {t('profile.languageDescription')}
+        </AppText>
+        <View style={styles.chips}>
+          {supportedLanguages.map((language) => (
+            <Chip
+              key={language}
+              label={languageNames[language]}
+              selected={i18n.language === language}
+              onPress={() => {
+                void setAppLanguage(language);
+                void saveLocale(language);
+              }}
+              testID={`language-${language}`}
+            />
+          ))}
+        </View>
+      </Card>
 
       <Card>
         <AppText variant="subheading">{t('profile.goalTitle')}</AppText>

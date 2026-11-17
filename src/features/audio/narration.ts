@@ -5,9 +5,6 @@
  */
 import type { TheoryStep } from '@/features/courses/types';
 
-/** I contenuti dei corsi sono in italiano. */
-export const NARRATION_LANGUAGE = 'it-IT';
-
 export const narrationRates = [0.85, 1, 1.15, 1.3] as const;
 export type NarrationRate = (typeof narrationRates)[number];
 
@@ -27,7 +24,7 @@ export function cleanForSpeech(text: string): string {
   return text
     .replace(/[“”«»"]/g, '')
     .replace(/[…]/g, '.')
-    .replace(/\s*[→>]\s*/g, ', poi ')
+    .replace(/\s*[→>]\s*/g, ', ')
     .replace(/https?:\/\/\S+/g, '')
     .replace(/[*_#`]/g, '')
     .replace(/\s+/g, ' ')

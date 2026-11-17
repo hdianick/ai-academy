@@ -1,8 +1,6 @@
 import * as Speech from 'expo-speech';
 import { Platform } from 'react-native';
 
-import { NARRATION_LANGUAGE } from './narration';
-
 /** Ogni nuova lettura annulla la precedente: i callback "vecchi" vengono ignorati. */
 let token = 0;
 
@@ -11,12 +9,13 @@ export function isSpeechSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
-/** true/false se il dispositivo ha (o no) una voce italiana; null se non si può sapere. */
-export async function hasItalianVoice(): Promise<boolean | null> {
+/** true/false se il dispositivo ha (o no) una voce per la lingua; null se non si può sapere. */
+export async function hasVoiceFor(language: string): Promise<boolean | null> {
+  const prefix = language.slice(0, 2).toLowerCase();
   try {
     const voices = await Speech.getAvailableVoicesAsync();
     if (voices.length === 0) return null;
-    return voices.some((voice) => voice.language.toLowerCase().startsWith('it'));
+    return voices.some((voice) => voice.language.toLowerCase().startsWith(prefix));
   } catch {
     return null;
   }
@@ -24,7 +23,7 @@ export async function hasItalianVoice(): Promise<boolean | null> {
 
 export function speakChunks(
   chunks: string[],
-  options: { rate: number; onDone: () => void; onError?: () => void },
+  options: { language: string; rate: number; onDone: () => void; onError?: () => void },
 ) {
   const mine = ++token;
   void Speech.stop();
@@ -36,7 +35,7 @@ export function speakChunks(
       return;
     }
     Speech.speak(text, {
-      language: NARRATION_LANGUAGE,
+      language: options.language,
       rate: options.rate,
       onDone: () => next(index + 1),
       onError: () => {

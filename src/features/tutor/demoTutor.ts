@@ -3,7 +3,7 @@
  * Abbina la domanda a una base di conoscenza locale, agli strumenti del catalogo
  * e alle lezioni dei corsi. Quando non sa rispondere lo dice chiaramente.
  */
-import { stopWords } from '@/data/content/tutor-knowledge';
+import { stopWords as defaultStopWords } from '@/data/content/tutor-knowledge';
 import { courseLessons, findLesson } from '@/features/courses/catalog';
 import type { Course } from '@/features/courses/types';
 import type { AiTool } from '@/features/tools/types';
@@ -24,6 +24,8 @@ export interface TutorSources {
   knowledge: KnowledgeEntry[];
   courses: Course[];
   tools: AiTool[];
+  /** Parole da ignorare nella ricerca delle lezioni (dipendono dalla lingua). */
+  stopWords?: Set<string>;
 }
 
 /** Voce della base di conoscenza più pertinente: vince chi ha le parole chiave più specifiche. */
@@ -54,6 +56,7 @@ export function matchTool(question: string, tools: AiTool[]): AiTool | null {
 export function matchLesson(
   question: string,
   courses: Course[],
+  stopWords: Set<string> = defaultStopWords,
 ): { id: string; title: string } | null {
   const words = normalizeText(question)
     .trim()
@@ -134,7 +137,7 @@ export function answerQuestion(question: string, sources: TutorSources): TutorRe
     };
   }
 
-  const lesson = matchLesson(question, sources.courses);
+  const lesson = matchLesson(question, sources.courses, sources.stopWords);
   if (lesson) {
     return {
       text: `In modalità demo non ho una risposta preparata per questa domanda, ma l’argomento è trattato nella lezione “${lesson.title}”. Aprila per approfondire.`,

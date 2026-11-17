@@ -127,8 +127,8 @@ export const it = {
     speedLabel: 'Cambia velocità di lettura, ora {{rate}}',
     tipSpoken: 'Consiglio',
     exampleSpoken: 'Esempio',
-    noItalianVoice:
-      'Il dispositivo non ha una voce italiana: la lettura potrebbe avere un accento straniero.',
+    noVoice:
+      'Il dispositivo non ha una voce per questa lingua: la lettura potrebbe avere un accento straniero.',
     backToReport: 'Torna al resoconto',
     theoryProgress: 'Teoria · {{current}} di {{total}}',
     questionsProgress: 'Domanda {{current}} di {{total}}',
@@ -257,6 +257,9 @@ export const it = {
     fallbackHint: 'Risposta non disponibile in demo',
   },
   profile: {
+    languageTitle: 'Lingua',
+    languageDescription:
+      'Lingua dell’app, dei corsi e della voce che legge le lezioni. I progressi restano gli stessi.',
     title: 'Profilo',
     subtitle: 'Livello, XP, badge e statistiche.',
     guestName: 'Studente',

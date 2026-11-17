@@ -44,6 +44,8 @@ interface AuthState {
   resetPassword: (email: string) => Promise<Result>;
   updatePassword: (password: string) => Promise<Result>;
   signOut: () => Promise<void>;
+  /** Salva la lingua nel profilo (solo con un account). */
+  saveLocale: (locale: string) => Promise<void>;
   /** Ricarica ruolo e piano (es. dopo una modifica dall'area admin). */
   refreshProfile: () => Promise<void>;
 }
@@ -169,6 +171,12 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         redirectTo: authRedirectUrl('update-password'),
       });
       return error ? { ok: false, error: mapAuthError(error) } : { ok: true };
+    },
+
+    saveLocale: async (locale) => {
+      const id = get().profile?.id;
+      if (!supabase || !id) return;
+      await supabase.from('profiles').update({ locale }).eq('id', id);
     },
 
     refreshProfile: async () => {

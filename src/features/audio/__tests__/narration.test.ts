@@ -10,7 +10,7 @@ describe('narration', () => {
     expect(cleanForSpeech('Scrivi “ciao”… vedi https://x.it **ora**')).toBe(
       'Scrivi ciao. vedi ora',
     );
-    expect(cleanForSpeech('Bozza → revisione')).toBe('Bozza, poi revisione');
+    expect(cleanForSpeech('Bozza → revisione')).toBe('Bozza, revisione');
   });
 
   it('splits text into short chunks without losing words', () => {
