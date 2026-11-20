@@ -37,3 +37,4 @@ Esegui i file di `migrations/` in ordine di data nel SQL Editor:
 
 1. `20261114000000_init.sql` — profili, progressi, contenuti, regole di sicurezza.
 2. `20261114120000_admin.sql` — email nei profili, statistiche per lo staff, avvisi nella Home.
+3. `20261120120000_subscription_requests.sql` — prenotazioni dei piani a pagamento (in attesa dei pagamenti veri).

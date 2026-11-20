@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import { spacing } from '@/core/theme';
 import { listProfiles } from '@/features/admin/api';
+import { formatDate } from '@/features/admin/format';
+import { listSubscriptionRequests } from '@/features/billing/api';
+import { formatPrice } from '@/features/billing/plans';
+import { potentialMonthlyRevenue } from '@/features/billing/potential';
 import { AdminShell, Notice } from '@/features/admin/components/AdminShell';
 import { BarRow } from '@/features/admin/components/BarRow';
 import { useAsyncData } from '@/features/admin/useAsyncData';
@@ -11,10 +15,22 @@ import { useAuthStore } from '@/features/auth/store';
 import { tierOrder } from '@/features/entitlements/entitlements';
 import { AppText, Button, Card, Chip, ErrorState, LoadingState } from '@/ui';
 
+/** Profili e prenotazioni; se la tabella delle prenotazioni non c'è ancora, la sezione resta vuota. */
+async function loadSubscriptions() {
+  const [profiles, requests] = await Promise.all([
+    listProfiles(),
+    listSubscriptionRequests().catch(() => null),
+  ]);
+  return { profiles, requests };
+}
+
 export default function AdminSubscriptionsScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const status = useAuthStore((s) => s.status);
-  const { state, reload } = useAsyncData(listProfiles, status === 'signedIn');
+  const { state: loaded, reload } = useAsyncData(loadSubscriptions, status === 'signedIn');
+  const state =
+    loaded.status === 'ready' ? { status: 'ready' as const, data: loaded.data.profiles } : loaded;
+  const requests = loaded.status === 'ready' ? loaded.data.requests : null;
 
   return (
     <AdminShell
@@ -63,6 +79,40 @@ export default function AdminSubscriptionsScreen() {
                 </Card>
               ))
           )}
+          {requests ? (
+            <>
+              <AppText variant="heading">{t('admin.subscriptions.requests')}</AppText>
+              {requests.length === 0 ? (
+                <AppText color="secondary">{t('admin.subscriptions.requestsNone')}</AppText>
+              ) : (
+                <AppText color="success" variant="bodyStrong" testID="potential-revenue">
+                  {t('admin.subscriptions.potential', {
+                    monthly: formatPrice(potentialMonthlyRevenue(requests), i18n.language),
+                  })}
+                </AppText>
+              )}
+              {requests.map((request) => {
+                const profile = state.data.find((p) => p.id === request.userId);
+                return (
+                  <Card key={request.userId} testID={`request-${request.userId}`}>
+                    <AppText variant="bodyStrong">
+                      {profile?.displayName || t('admin.users.noName')}
+                    </AppText>
+                    <AppText variant="caption" color="muted" selectable>
+                      {profile?.email ?? t('admin.users.noEmail')}
+                    </AppText>
+                    <AppText variant="caption" color="accent">
+                      {t('admin.subscriptions.requestLine', {
+                        plan: t(`plans.${request.plan}.name`),
+                        period: t(`plans.${request.period}`),
+                        date: formatDate(request.createdAt),
+                      })}
+                    </AppText>
+                  </Card>
+                );
+              })}
+            </>
+          ) : null}
           <Button
             label={t('admin.subscriptions.manage')}
             variant="secondary"

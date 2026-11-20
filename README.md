@@ -159,3 +159,10 @@ L'app è in italiano e inglese: la lingua si sceglie nel Profilo (salvata sul di
 - Testi dell'interfaccia: `src/locales/it.ts` e `src/locales/en.ts`.
 - Contenuti (corsi, strumenti, Practice Lab, novità, tutor): `src/data/content/` (italiano) e `src/data/content/en/` (inglese), scelti da `src/data/content/registry.ts`.
 - Gli id sono identici nelle due lingue, quindi i progressi valgono in entrambe. Un test verifica struttura, risposte corrette e che nel file inglese non resti testo italiano.
+
+## Abbonamenti (pagamenti non ancora attivi)
+
+- Prezzi in `src/features/billing/plans.ts` (`planPricing`, centesimi di euro IVA inclusa): Premium 7,99 €/mese o 59,99 €/anno, Pro 14,99 €/mese o 119,99 €/anno.
+- `/plans` mostra i piani con scelta mensile/annuale; `/checkout` fa il riepilogo e, finché `PAYMENTS_ENABLED` è `false`, registra solo una **prenotazione** (nessun addebito).
+- Le prenotazioni (tabella `subscription_requests`) compaiono in Admin → Abbonamenti con l'incasso potenziale.
+- Per attivare i pagamenti veri servirà un fornitore (es. Stripe per il web, RevenueCat per gli store) che, a pagamento riuscito, aggiorni il `plan` nel profilo.
